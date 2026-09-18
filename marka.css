@@ -1,0 +1,78 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap");
+/* ============================================================================
+   MARKA KATMANI — peckofirin.com.tr kurumsal kimliği.
+   Renkler sitenin üst şeridi, arama düğmesi ve logosundan alındı.
+   WhatsApp sohbet ekranı bilinçli olarak dışarıda: orası WhatsApp gibi
+   görünmeli; oradan markaya bağlanan tek şey profil görselindeki logo.
+   ========================================================================= */
+:root{
+  /* --- sitenin kendi renkleri --- */
+  --marka-lacivert:#0C2A35;     /* üst şerit */
+  --marka-lacivert-2:#15394A;   /* menü şeridi */
+  --marka-turuncu:#F0592B;      /* arama düğmesi, birincil eylem */
+  --marka-kirmizi:#E32227;      /* logodaki "fırın", uyarı vurgusu */
+
+  /* --- uygulamaya dağıtılan roller --- */
+  --marka-zemin:#F4F6F7;        /* sayfa zemini */
+  --marka-kart:#FFFFFF;         /* kart / form zemini */
+  --marka-gomme:#EDF1F3;        /* ikincil zemin, şerit */
+  --marka-metin:#16252E;        /* ana metin */
+  --marka-ikincil:#6A7A84;      /* ikincil metin */
+  --marka-cizgi:#DFE6E9;        /* kenarlık */
+  --marka-vurgu:var(--marka-turuncu);
+  --marka-vurgu-koyu:#C8410F;   /* bağlantı, basılı hâl */
+  --marka-koyu:var(--marka-lacivert);
+  --marka-koyu-uzeri:#FFFFFF;
+
+  /* --- yazı --- */
+  --marka-yazi:Poppins,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --marka-baslik:var(--marka-yazi);
+
+  /* --- biçim: sitedeki kutular yumuşak ama keskin köşeli --- */
+  --marka-yuvarlak:9px;
+
+  /* --- logo: tek satır, üç yerde birden değişir ---
+     Adres MUTLAK olmalı (https://… ya da /sadakat/logo.png gibi kökten).
+     Göreli yol alt sayfalarda kırılır: logo <img> olarak eklendiği için
+     adres belgeye göre çözülür, stil dosyasına göre değil. */
+  --marka-logo:url("https://peckofirin.com.tr/images/pecko-logo.png");
+  --marka-logo-yedek:🎂;
+  --marka-logo-zemin:var(--marka-lacivert);
+}
+
+/* Marka değişkenlerini uygulamanın kendi belirteçlerine bağlar. */
+:root{
+  --bg:var(--marka-zemin);
+  --card:var(--marka-kart);
+  --sunk:var(--marka-gomme);
+  --ink:var(--marka-metin);
+  --muted:var(--marka-ikincil);
+  --line:var(--marka-cizgi);
+  --brand:var(--marka-vurgu);
+  --brand-ink:var(--marka-vurgu-koyu);
+  --cocoa:var(--marka-koyu);
+  --radius:var(--marka-yuvarlak);
+  --danger:var(--marka-kirmizi);
+}
+body{font-family:var(--marka-yazi)}
+h1,h2,h3,.pbar b{font-family:var(--marka-baslik)}
+
+/* --- logo yuvaları -------------------------------------------------------
+   .marka-logo      → yuvarlak profil görseli (WhatsApp başlığı)
+   .marka-yazi-logo → yatay kelime logosu (panel çubuğu, yönlendirme sayfası)
+   Görsel yüklenemezse yedek karakter kalır; hotlink kesilirse sayfa bozulmaz. */
+.marka-logo{
+  display:grid;place-items:center;flex:0 0 auto;
+  width:40px;height:40px;border-radius:50%;overflow:hidden;
+  background:var(--marka-logo-zemin);
+  font-size:1.05rem;line-height:1;color:#fff;
+}
+.marka-logo img{width:100%;height:100%;object-fit:contain;padding:5px;display:block}
+.marka-yazi-logo{display:flex;align-items:center;flex:0 0 auto;height:26px;
+  font:700 1rem/1 var(--marka-baslik);color:#fff;letter-spacing:-.01em}
+.marka-yazi-logo img{height:100%;width:auto;display:block}
+.marka-yazi-logo.buyuk{height:40px}
+/* Logo beyaz "peçko" + kırmızı "fırın"dan oluşuyor: açık zeminde sol yarısı
+   kaybolur. Açık yüzeylerde logo daima bu lacivert plakanın üzerinde durur. */
+.logo-plaka{background:var(--marka-lacivert);display:flex;align-items:center;justify-content:center;
+  padding:1.05rem 1rem}

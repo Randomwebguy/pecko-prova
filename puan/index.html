@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0D1519" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#F2EFEB" media="(prefers-color-scheme: light)">
+<link rel="icon" href="../simge.svg" type="image/svg+xml">
+<title>Üyeliğim · Peçko Fırın</title>
+<link rel="stylesheet" href="../uygulama.css">
+</head>
+<body>
+<header class="urlbar">🔒 <b>peckofirin.com.tr</b><span id="path">/sadakat/uye</span><a href="../sohbet/">Kapat</a></header>
+
+<div class="uygulama sekmeli">
+  <header class="ust">
+    <p class="marka"><b>Peçko</b> Fırın</p>
+    <h1 id="baslik">Kartım</h1>
+  </header>
+  <main>
+
+    <!-- Oturum yoksa: giriş ekranı. -->
+    <section id="giris" hidden>
+      <div class="secim">
+        <a class="acik" href="#" id="giris-sekme">Giriş</a>
+        <a href="../onay/?yeni=1">Yeni üyelik</a>
+      </div>
+      <div class="uyari hata" id="giris-hata" role="alert" hidden></div>
+
+      <!-- Eski provadan kalan üyelikte şifre yok: giriş ekranı kapalı bir kapı
+           olmasın, kişiyi yeni kayda yönlendirsin. -->
+      <div id="sifresiz" hidden>
+        <div class="uyari bilgi">Bu cihazdaki üyelik, uygulamanın önceki sürümünden kalmış:
+          şifresi yok, bu yüzden giriş yapılamıyor.</div>
+        <a class="dugme birincil" href="../onay/?yeni=1">Yeni üyelik başlat</a>
+      </div>
+
+      <form id="giris-form">
+        <label class="alan">
+          <span>Telefon numaranız</span>
+          <input type="tel" name="telefon" inputmode="tel" autocomplete="tel" placeholder="0532 123 45 67" maxlength="20">
+        </label>
+        <label class="alan">
+          <span>Şifreniz</span>
+          <input type="password" name="sifre" autocomplete="current-password">
+        </label>
+        <button class="dugme birincil" type="submit">Giriş yap</button>
+      </form>
+      <p class="dipnot merkez">Girişiniz, siz çıkana kadar açık kalır.</p>
+    </section>
+
+    <!-- Kartım -->
+    <section id="s-kart" hidden>
+      <div class="kutu kod-kart">
+        <p class="etiket">Üyelik kodunuz</p>
+        <p class="kod" id="kod">—</p>
+        <p class="ipucu">Kasada bu kodu söyleyin</p>
+        <hr class="ayrac">
+        <div class="tur" id="tur-noktalar" role="img" aria-label="tur ilerlemesi"></div>
+        <div class="satir">
+          <span class="ad" id="tur-sayi">—</span>
+          <span class="deger" id="tur-kalan">—</span>
+        </div>
+      </div>
+
+      <section class="bolum">
+        <h2>Hediye bakiyeniz</h2>
+        <div class="grup">
+          <div class="bakiye">
+            <p class="tutar-buyuk" id="bakiye">—</p>
+            <p class="mini" id="bakiye-skt" hidden></p>
+            <p class="mini" id="bakiye-bekleyen" hidden></p>
+          </div>
+          <a class="satir-bag" href="#gecmis" data-git="gecmis"><span>Tüm hareketler</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9.5 5.5 6.5 6.5-6.5 6.5"/></svg></a>
+        </div>
+        <p class="dipnot" id="tavan-not">—</p>
+      </section>
+
+      <section class="bolum">
+        <h2>Nasıl kazanılır</h2>
+        <ol class="adimlar grup" id="adimlar"></ol>
+      </section>
+    </section>
+
+    <!-- Geçmiş -->
+    <section id="s-gecmis" hidden>
+      <section class="bolum">
+        <h2>Alışverişlerim</h2>
+        <div id="alisverisler"></div>
+      </section>
+      <section class="bolum">
+        <h2>Bakiye hareketleri</h2>
+        <div id="partiler"></div>
+      </section>
+    </section>
+
+    <!-- Fiş -->
+    <section id="s-fis" hidden>
+      <p class="aciklama">Fişin tamamı görünsün, düz ve net çekin. Aynı gün içindeki fişleriniz
+        tek alışveriş sayılır ve tutarları toplanır.</p>
+      <div class="uyari" id="fis-durum" hidden></div>
+      <label class="dosya" id="fis-sec">
+        <input type="file" accept="image/*" id="fis-girdi">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8.4h3.4L9 6h6l1.6 2.4H20v10H4z"/><circle cx="12" cy="13" r="3.4"/></svg>
+        <span class="sol">
+          <span class="baslik" id="fis-ad">Fişin fotoğrafını seçin</span>
+          <span class="alt">Kamerayla çekin ya da galeriden seçin</span>
+        </span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9.5 5.5 6.5 6.5-6.5 6.5"/></svg>
+      </label>
+      <button class="dugme birincil" id="fis-gonder" type="button">Gönder</button>
+      <p class="dipnot">Bu bir provadır: seçtiğiniz fotoğraf yüklenmez, gerçek sistemdeki okuma ve
+        denetim adımları örnek bir fiş üzerinden canlandırılır.</p>
+
+      <section class="bolum" style="margin-top:22px">
+        <h2>Gönderdiklerim</h2>
+        <div id="fisler"></div>
+      </section>
+    </section>
+
+    <!-- Hesap -->
+    <section id="s-hesap" hidden>
+      <div class="bolum">
+        <div class="grup">
+          <div class="satir"><span class="ad">Üyelik kodu</span><span class="deger" id="h-kod">—</span></div>
+          <div class="satir"><span class="ad">Telefon</span><span class="deger" id="h-tel">—</span></div>
+          <div class="satir"><span class="ad">Üyelik başlangıcı</span><span class="deger" id="h-tarih">—</span></div>
+        </div>
+      </div>
+
+      <div class="bolum">
+        <h2>Kampanya mesajları</h2>
+        <div class="grup">
+          <label class="anahtar-satir">
+            <span>Kampanya, indirim ve yeniliklerden WhatsApp'tan haberdar olmak istiyorum.</span>
+            <input class="anahtar" type="checkbox" id="izin">
+          </label>
+        </div>
+        <p class="dipnot">Tur tamamlandı ve bakiye bildirimleri bu izne bağlı değildir; üyeliğin
+          işleyişi gereği gönderilir.</p>
+      </div>
+
+      <div class="bolum">
+        <h2>Açık oturumlar</h2>
+        <div class="grup">
+          <div class="satir">
+            <span class="sol">
+              <span class="baslik" id="cihaz">Bu cihaz</span>
+              <span class="alt" id="cihaz-zaman">—</span>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="bolum">
+        <h2>Verileriniz</h2>
+        <div class="grup">
+          <a class="satir-bag" href="../onay/?oku=1"><span>Aydınlatma Metni</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9.5 5.5 6.5 6.5-6.5 6.5"/></svg></a>
+          <a class="satir-bag" href="../sohbet/"><span>WhatsApp'tan yaz</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9.5 5.5 6.5 6.5-6.5 6.5"/></svg></a>
+        </div>
+        <p class="dipnot">Verilerinizin tamamını görmek veya üyeliğinizi silmek için WhatsApp'tan
+          <strong>VERILERIM</strong> ya da <strong>SIL</strong> yazın. Silme işlemi geri alınamadığı için
+          numaranızdan onay isteriz.</p>
+      </div>
+
+      <div class="bolum">
+        <div class="grup">
+          <button class="satir-eylem tehlike" type="button" id="cikis">Çıkış yap</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<nav class="sekmeler" id="sekmeler" aria-label="Uygulama bölümleri" hidden>
+  <a href="#kart" data-git="kart" class="acik" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8.5A2.5 2.5 0 0 1 5.5 6h13A2.5 2.5 0 0 1 21 8.5v7a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 15.5z"/><path d="M3 10.5h18"/><path d="M6.5 14.5h3"/></svg><span>Kartım</span></a>
+  <a href="#gecmis" data-git="gecmis"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 7v5l3.2 1.9"/><circle cx="12" cy="12" r="8.2"/></svg><span>Geçmiş</span></a>
+  <a href="#fis" data-git="fis"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3.8h12v16.4l-2.4-1.5-2.4 1.5-2.4-1.5-2.4 1.5L6 18.7z"/><path d="M9.4 8.6h5.2"/><path d="M9.4 12.4h5.2"/></svg><span>Fiş</span></a>
+  <a href="#hesap" data-git="hesap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 11.6a3.8 3.8 0 1 0 0-7.6 3.8 3.8 0 0 0 0 7.6z"/><path d="M4.8 20c.6-3.6 3.6-5.6 7.2-5.6s6.6 2 7.2 5.6"/></svg><span>Hesap</span></a>
+</nav>
+
+<script src="../ortak.js"></script>
+<script src="uygulama.js"></script>
+</body>
+</html>

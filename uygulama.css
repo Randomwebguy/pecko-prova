@@ -20,6 +20,10 @@
  *  · Hareket 160ms, yalnızca durum değişimini anlatmak için. Azaltılmış hareket
  *    tercihi kapatır.
  *
+ * Tek tema: açık. Koyu tema yok — iki temayı birden doğru tutmak her renk
+ * kararını ikiye katlıyor ve markanın laci/turuncu dengesi karanlıkta
+ * kendiliğinden bozuluyordu.
+ *
  * Yazı tipi bilerek sistem yığını: iPhone'da San Francisco, Android'de Roboto.
  * Marka yazı tipini dışarıdan yüklemek hem CSP'yi gevşetir hem ilk açılışta
  * yazıyı zıplatır; marka renkle ve yerleşimle taşınıyor.
@@ -51,27 +55,7 @@
   --girinti: 16px;
 
   --yazi: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  color-scheme: light dark;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    /* Koyu temada kahraman kart zeminden ve karttan AÇIK olmalı: karanlıkta
-       yükselen yüzey açılır. Kurumsal laci bir ton yukarı alınıyor. */
-    --laci: #163C4E;
-    --zemin: #0D1519;
-    --kart: #18272F;
-    --gomme: #22343D;
-    --ray: #3A4C57;
-    --metin: #EAF1F4;
-    --ikincil: #9AAEB8;
-    --cizgi: #273A44;
-    --ok: #4CC17E;
-    --ok-zemin: #16301F;
-    --uyari-zemin: #2B2415;
-    --kirmizi: #FF6B60;
-    --golge: 0 1px 2px rgba(0, 0, 0, .5), 0 10px 28px rgba(0, 0, 0, .38);
-  }
+  color-scheme: light;
 }
 
 * { box-sizing: border-box; }
@@ -91,8 +75,6 @@ body {
 }
 
 a { color: var(--turuncu-koyu); }
-@media (prefers-color-scheme: dark) { a { color: #FF8A5C; } }
-
 /* --- iskelet --------------------------------------------------------------- */
 
 .uygulama {
@@ -420,10 +402,6 @@ main > :last-child { margin-bottom: 0; }
   background: linear-gradient(to bottom, rgba(255, 255, 255, 0), var(--kart));
   pointer-events: none;
 }
-@media (prefers-color-scheme: dark) {
-  .yasal-sarmal::after { background: linear-gradient(to bottom, rgba(24, 39, 47, 0), var(--kart)); }
-}
-
 .yasal-kutu {
   max-height: 30vh;
   overflow-y: auto;
@@ -546,13 +524,9 @@ details.kutu[open] summary::after { content: "⌄"; }
 .rozet { display: inline-block; padding: 4px 11px; border-radius: 999px; font-size: 13px; font-weight: 600; background: var(--gomme); color: var(--ikincil); }
 .rozet.olumlu { background: var(--ok-zemin); color: var(--ok); }
 .rozet.bekliyor { background: var(--uyari-zemin); color: #9A6A12; }
-@media (prefers-color-scheme: dark) { .rozet.bekliyor { color: #E8B55C; } }
-
 .uyari { border-radius: var(--yuvarlak); padding: 13px var(--girinti); font-size: 15px; line-height: 1.4; margin: 0 0 16px; }
 .uyari.hata { background: #FBE7E5; color: #9E2119; }
 .uyari.bilgi { background: var(--ok-zemin); color: var(--ok); }
-@media (prefers-color-scheme: dark) { .uyari.hata { background: #38191A; color: #FF9A9A; } }
-
 /* Numaralı adımlar: rakam solda, açıklama sağda. */
 .adimlar { list-style: none; margin: 0; padding: 0; counter-reset: adim; }
 .adimlar li { display: flex; align-items: flex-start; gap: 13px; }

@@ -38,6 +38,9 @@ node cuzdan.test.mjs     # hediye bakiye kurallarının testleri
 
 ## Yayın
 
-`main` dalına her gönderimde `.github/workflows/pages.yml` çalışır ve site
-GitHub Pages'e dağıtılır. `robots.txt` arama motorlarını dışarıda tutar;
-sayfalarda ayrıca `noindex` etiketi vardır.
+GitHub Pages doğrudan `main` dalından sunar (Settings → Pages → Source:
+*Deploy from a branch* → `main` → `/ (root)`). Derleme adımı yok; `.nojekyll`
+dosyaların Jekyll'den geçmeden olduğu gibi sunulmasını sağlar.
+
+`robots.txt` arama motorlarını dışarıda tutar; sayfalarda ayrıca `noindex`
+etiketi vardır.

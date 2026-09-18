@@ -1,205 +1,306 @@
 /* Üye uygulaması provası.
  *
- * Ürünle aynı ekranlar, aynı stil dosyası; veriler tarayıcıdaki prova
- * durumundan geliyor. Sunucu yok, bu yüzden "oturum" da yok: uygulamanın
+ * Ürünle aynı ekranlar, aynı stil dosyası, aynı simgeler; veriler tarayıcıdaki
+ * prova durumundan geliyor. Sunucu yok, bu yüzden "oturum" da yok: uygulamanın
  * kalıcı girişini burada localStorage temsil ediyor.
  */
 (function () {
   'use strict';
   var P = window.PECKO;
+  var S = window.PECKO_SIMGE;
   var $ = function (id) { return document.getElementById(id); };
-  var S = P.load();
+  var D = P.load();
+  var c = P.CUZDAN;
+  var yuzde = function (o) { return Math.round(o * 100); };
+  var kisaTl = function (kurus) { return Math.round((kurus || 0) / 100).toLocaleString('tr-TR') + ' TL'; };
 
-  // [bölüm kimliği, sayfa başlığı] — sekme çubuğundaki kısa ad HTML'de duruyor.
   var SEKME = {
-    kart: ['s-kart', 'Kartım'],
-    gecmis: ['s-gecmis', 'Geçmiş'],
-    fis: ['s-fis', 'Fiş yükle'],
-    hesap: ['s-hesap', 'Hesabım'],
+    kart: ['s-kart', 'Kartım', 'Hediye bakiyen, tur durumun ve üyelik kodun.', '/sadakat/uye'],
+    gecmis: ['s-gecmis', 'Geçmiş', 'Alışveriş ve bakiye hareketlerinin tamamı.', '/sadakat/uye/gecmis'],
+    fis: ['s-fis', 'Fiş yükle', 'Alışverişini fiş fotoğrafıyla hesabına ekle.', '/sadakat/uye/fis'],
+    hesap: ['s-hesap', 'Hesabım', 'Üyelik, izinler ve veri tercihlerin.', '/sadakat/uye/hesap'],
   };
+  var SIRA = [['kart', 'Kartım'], ['gecmis', 'Geçmiş'], ['fis', 'Fiş'], ['hesap', 'Hesap']];
 
-  function el(etiket, sinif, metin) {
-    var e = document.createElement(etiket);
-    if (sinif) e.className = sinif;
-    if (metin != null) e.textContent = metin;
-    return e;
+  function kalanGun(ts) {
+    if (!ts) return null;
+    var f = ts - Date.now();
+    return f <= 0 ? 0 : Math.ceil(f / 86400000);
   }
-
-  // Boş liste: kartın içinde tek cümle değil, simgesiyle birlikte bir durum.
-  function bosDurum(yol, baslik, alt) {
-    var g = el('div', 'grup'), b = el('div', 'bos');
-    b.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" '
-      + 'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + yol + '</svg>';
-    b.appendChild(el('p', 'baslik', baslik));
-    b.appendChild(el('p', 'alt', alt));
-    g.appendChild(b);
-    return g;
+  function kisaTarih(ts) {
+    return new Date(ts).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' });
   }
-
-  var SIMGE_TORBA = '<path d="M6 8h12l-1 12H7z"/><path d="M9.2 8V6.6a2.8 2.8 0 0 1 5.6 0V8"/>';
-  var SIMGE_HEDIYE = '<path d="M4.6 11.4h14.8V20H4.6z"/><path d="M3.6 7.6h16.8v3.8H3.6z"/><path d="M12 7.6V20"/>'
-    + '<path d="M12 7.6S10.8 4 8.8 4a1.9 1.9 0 0 0 0 3.6z"/><path d="M12 7.6S13.2 4 15.2 4a1.9 1.9 0 0 1 0 3.6z"/>';
-  var SIMGE_FIS = '<path d="M6 3.8h12v16.4l-2.4-1.5-2.4 1.5-2.4-1.5-2.4 1.5L6 18.7z"/><path d="M9.4 8.6h5.2"/><path d="M9.4 12.4h5.2"/>';
-
-  /* --- iki yanlı liste satırı --- */
-  function satir(baslik, alt, sagBaslik, sagAlt) {
-    var li = el('li');
-    var sol = el('span', 'sol');
-    sol.appendChild(el('span', 'baslik', baslik));
-    if (alt) sol.appendChild(el('span', 'alt', alt));
-    li.appendChild(sol);
-    if (sagBaslik != null) {
-      var sag = el('span', 'sag');
-      sag.appendChild(el('span', 'baslik', sagBaslik));
-      if (sagAlt) sag.appendChild(el('span', 'alt', sagAlt));
-      li.appendChild(sag);
-    }
-    return li;
+  function uzunGun(ts) {
+    return new Date(ts).toLocaleDateString('tr-TR', { day: '2-digit', month: 'long', year: 'numeric' })
+      .toLocaleUpperCase('tr-TR');
+  }
+  function bosDurum(ikon, baslik, alt) {
+    return '<div class="kart"><div class="bos">' + S(ikon) + '<b>' + baslik + '</b><span>' + alt + '</span></div></div>';
   }
 
   /* --- ekranlar --- */
 
   function kartCiz() {
-    var tur = P.turDurumu(S), c = P.CUZDAN;
-    $('kod').textContent = S.code || '—';
+    var tur = P.turDurumu(D);
+    var bakiye = P.aktifBakiye(D);
+    var bekleyen = P.bekleyenBakiye(D);
+    var ilk = P.ilkSonKullanma(D);
+    var gun = ilk ? kalanGun(ilk.sonKullanmaTs) : null;
+    var noktalar = '';
+    for (var i = 0; i < tur.uzunluk; i++) noktalar += '<i class="' + (i < tur.alisveris ? 'dolu' : '') + '"></i>';
 
-    var kap = $('tur-noktalar');
-    kap.innerHTML = '';
-    for (var i = 0; i < tur.uzunluk; i++) {
-      var n = el('span');
-      if (i < tur.alisveris) n.className = 'dolu';
-      kap.appendChild(n);
-    }
-    kap.setAttribute('aria-label', tur.alisveris + ' / ' + tur.uzunluk + ' alışveriş');
-    $('tur-sayi').textContent = tur.alisveris + ' / ' + tur.uzunluk + ' alışveriş';
-    $('tur-kalan').textContent = tur.kalan ? tur.kalan + ' alışveriş kaldı' : 'Tur doldu';
+    $('s-kart').innerHTML =
+      '<div class="hero">'
+      + '<p class="etiket">KULLANILABİLİR HEDİYE BAKİYESİ</p>'
+      + '<div class="hero-satir">'
+      +   '<p class="tutar">' + Math.round(bakiye / 100).toLocaleString('tr-TR') + ' <small>TL</small></p>'
+      +   (gun !== null ? '<span class="rozet uyari">' + gun + ' gün kaldı</span>' : '')
+      + '</div>'
+      + '<div class="hero-satir">'
+      +   '<span class="rozet acik">' + D.code + '</span>'
+      +   (ilk ? '<span class="etiket">Son kullanım ' + kisaTarih(ilk.sonKullanmaTs) + '</span>' : '')
+      + '</div>'
+      + '<p class="ipucu-satir">' + S('kalkan') + ' Bir alışverişin en fazla %' + yuzde(c.tavanOrani) + "'inde kullanabilirsin.</p>"
+      + '</div>'
 
-    var bakiye = P.aktifBakiye(S), bekleyen = P.bekleyenBakiye(S), ilk = P.ilkSonKullanma(S);
-    $('bakiye').textContent = P.tlk(bakiye);
-    $('bakiye-skt').hidden = !ilk;
-    if (ilk) $('bakiye-skt').textContent = 'Son kullanma ' + P.gunAdi(P.gunKodu(ilk.sonKullanmaTs));
-    $('bakiye-bekleyen').hidden = !bekleyen;
-    if (bekleyen) $('bakiye-bekleyen').textContent = P.tlk(bekleyen) + ' bugün kazanıldı, yarından itibaren kullanılabilir.';
-    $('tavan-not').textContent = 'Bakiyeniz bir alışverişin en fazla %' + Math.round(c.tavanOrani * 100)
-      + "'ini karşılar; nakde çevrilmez.";
+      + '<div class="hizli">'
+      +   '<a class="dugme birincil" href="#hesap" data-git="hesap">' + S('karekod', 2) + 'Kodu göster</a>'
+      +   '<a class="dugme ikincil" href="../tanitim/">' + S('soru', 2) + 'Nasıl kazanılır?</a>'
+      + '</div>'
 
-    var adimlar = [
-      [c.turUzunlugu + ' alışveriş yapın',
-        'Aynı gündeki fişler tek alışveriş sayılır; günlük toplam ' + P.tlkKisa(c.enAzAlisverisKurus) + ' ve üzeri olmalıdır.'],
-      ["Tur dolunca %" + Math.round(c.oran * 100) + "'i size döner",
-        'O turda ödediğiniz tutarın %' + Math.round(c.oran * 100) + "'i hediye bakiye olarak hesabınıza geçer."],
-      [c.gecerlilikGun + ' gün içinde harcayın',
-        'Kasada kodunuzu söylemeniz yeterli; bakiyeniz alışverişten düşülür.'],
-    ];
-    var ol = $('adimlar');
-    ol.innerHTML = '';
-    adimlar.forEach(function (a, i) {
-      var li = el('li');
-      li.appendChild(el('b', null, String(i + 1)));
-      var s = el('span');
-      s.appendChild(el('span', 'baslik', a[0]));
-      s.appendChild(el('span', 'alt', a[1]));
-      li.appendChild(s);
-      ol.appendChild(li);
-    });
+      + (bekleyen ? '<div class="uyari bilgi">' + kisaTl(bekleyen) + ' bugün kazanıldı; yarından itibaren kullanabilirsin.</div>' : '')
+
+      + '<div class="kart">'
+      +   '<div class="tur-ust"><div>'
+      +     '<p class="baslik-sm">Alışveriş turun</p>'
+      +     '<p class="mini">' + (tur.kalan ? tur.kalan + ' alışveriş sonra yeni bakiye' : 'Tur doldu') + '</p>'
+      +   '</div><div class="tur-sayi">' + tur.alisveris + ' <span>/ ' + tur.uzunluk + '</span></div></div>'
+      +   '<div class="noktalar" role="img" aria-label="' + tur.alisveris + ' / ' + tur.uzunluk + ' alışveriş">' + noktalar + '</div>'
+      +   '<div class="kutucuklar">'
+      +     '<div class="kutucuk"><b>' + kisaTl(tur.netKurus) + '</b><span>Bu turdaki net harcama</span></div>'
+      +     '<div class="kutucuk"><b>%' + yuzde(c.oran) + '</b><span>Tur sonunda hediye bakiye</span></div>'
+      +   '</div>'
+      + '</div>'
+
+      + '<div class="serit"><span class="im">' + S('hediye', 1.9) + '</span><div>'
+      +   '<b>' + c.turUzunlugu + ' alışveriş = 1 tur</b>'
+      +   '<span>Tur tamamlandığında net harcamanın %' + yuzde(c.oran) + "'i hediye bakiye olur.</span>"
+      + '</div></div>';
   }
 
   function gecmisCiz() {
-    var kap = $('alisverisler');
-    kap.innerHTML = '';
-    var liste = S.alisverisler || [];
-    if (!liste.length) {
-      kap.appendChild(bosDurum(SIMGE_TORBA, 'Henüz alışveriş yok',
-        'İlk alışverişiniz kasada işlendiğinde burada görünür.'));
+    var olaylar = [];
+    (D.alisverisler || []).forEach(function (a) {
+      var notlar = [];
+      if (a.sayildi) notlar.push('Tur ' + a.turNo); else notlar.push('Tura sayılmadı');
+      if (a.fis > 1) notlar.push(a.fis + ' fiş birleştirildi');
+      olaylar.push({ tur: 'alisveris', ts: a.ts, ikon: 'torba', renk: '', baslik: 'Peçko Fırın alışverişi',
+        alt: notlar.join(' · '), miktar: kisaTl(a.netKurus), sinif: '' });
+      if (a.bakiyeKurus) {
+        olaylar.push({ tur: 'bakiye', ts: a.ts + 1, ikon: 'para', renk: 'yesil', baslik: 'Hediye bakiye kullanıldı',
+          alt: 'Kasada kullanım', miktar: '−' + kisaTl(a.bakiyeKurus), sinif: 'eksi' });
+      }
+    });
+    ((D.cuzdan && D.cuzdan.partiler) || []).forEach(function (p) {
+      olaylar.push({ tur: 'bakiye', ts: p.kazanildiTs, ikon: 'hediye', renk: 'turuncu',
+        baslik: p.turNo ? 'Tur tamamlandı' : 'Hediye bakiye',
+        alt: (p.turNo ? 'Tur ' + p.turNo + ' · ' : '') + 'Son kullanım ' + kisaTarih(p.sonKullanmaTs),
+        miktar: '+' + kisaTl(p.tutar), sinif: 'arti' });
+    });
+    olaylar.sort(function (a, b) { return b.ts - a.ts; });
+
+    var ayBasi = new Date(); ayBasi.setDate(1); ayBasi.setHours(0, 0, 0, 0);
+    var ayToplam = (D.alisverisler || []).filter(function (a) { return a.ts >= ayBasi.getTime(); })
+      .reduce(function (t, a) { return t + a.netKurus; }, 0);
+    var ayAdi = new Date().toLocaleDateString('tr-TR', { month: 'long' }).toLocaleUpperCase('tr-TR');
+
+    var bugun = uzunGun(Date.now());
+    var govde = '';
+    if (!olaylar.length) {
+      govde = bosDurum('torba', 'Henüz hareket yok',
+        'İlk alışverişin kasada işlendiğinde burada görünür. ' + c.turUzunlugu + ' alışverişte bir hediye bakiye kazanırsın.');
     } else {
-      var ul = el('ul', 'liste grup'), oncekiTur = null;
-      liste.forEach(function (a) {
-        if (a.sayildi && a.turNo !== oncekiTur) {
-          var ay = el('li', 'ayirac', 'Tur ' + a.turNo);
-          ul.appendChild(ay);
-          oncekiTur = a.turNo;
+      var oncekiGun = null;
+      govde = '<ul class="akis">';
+      olaylar.forEach(function (o) {
+        var ad = uzunGun(o.ts);
+        if (ad !== oncekiGun) {
+          govde += '<li class="gun" data-tur="baslik">' + ad + (ad === bugun ? ' · BUGÜN' : '') + '</li>';
+          oncekiGun = ad;
         }
-        var notlar = [];
-        if (!a.sayildi) notlar.push('Tura sayılmadı');
-        if (a.fis > 1) notlar.push(a.fis + ' fiş birleşti');
-        ul.appendChild(satir(P.gunAdi(a.gun), notlar.join(' · '), P.tlk(a.netKurus),
-          a.bakiyeKurus ? 'bakiye ' + P.tlk(a.bakiyeKurus) : null));
+        govde += '<li class="olay" data-tur="' + o.tur + '">'
+          + '<span class="olay-im ' + o.renk + '">' + S(o.ikon) + '</span>'
+          + '<div><b>' + o.baslik + '</b>' + (o.alt ? '<span>' + o.alt + '</span>' : '') + '</div>'
+          + '<span class="miktar ' + o.sinif + '">' + o.miktar + '</span></li>';
       });
-      kap.appendChild(ul);
+      govde += '</ul>';
     }
 
-    var kap2 = $('partiler');
-    kap2.innerHTML = '';
-    var partiler = (S.cuzdan && S.cuzdan.partiler) || [];
-    if (!partiler.length) {
-      kap2.appendChild(bosDurum(SIMGE_HEDIYE, 'Hediye bakiyeniz burada birikir',
-        P.CUZDAN.turUzunlugu + ' alışverişi tamamladığınızda ilk bakiyeniz bu listeye düşer.'));
-    } else {
-      var ul2 = el('ul', 'liste grup');
-      partiler.forEach(function (p) {
-        var durum = p.kalan > 0 && p.sonKullanmaTs > Date.now() ? P.tlk(p.kalan) + ' kaldı'
-          : (p.kalan > 0 ? 'süresi doldu' : 'kullanıldı');
-        ul2.appendChild(satir(
-          p.turNo ? 'Tur ' + p.turNo : (p.sebep === 'instagram' ? 'Instagram paylaşımı' : 'Hediye bakiye'),
-          P.gunAdi(P.gunKodu(p.kazanildiTs)) + ' · son kullanma ' + P.gunAdi(P.gunKodu(p.sonKullanmaTs)),
-          P.tlk(p.tutar), durum));
-      });
-      kap2.appendChild(ul2);
-    }
+    $('s-gecmis').innerHTML =
+      '<div class="secim" data-suzgec>'
+      + '<button type="button" class="acik" data-tur="hepsi">Tümü</button>'
+      + '<button type="button" data-tur="alisveris">Alışveriş</button>'
+      + '<button type="button" data-tur="bakiye">Bakiye</button>'
+      + '</div>'
+      + '<div class="ozet">'
+      +   '<div><label>' + ayAdi + ' ALIŞVERİŞİ</label><strong>' + kisaTl(ayToplam) + '</strong></div>'
+      +   '<div><label>AKTİF BAKİYE</label><strong class="turuncu">' + kisaTl(P.aktifBakiye(D)) + '</strong></div>'
+      + '</div>' + govde;
+    suzgeciBagla();
   }
 
-  var DURUM_ADI = { 'onaylandı': ['olumlu', 'Onaylandı'], 'bekliyor': ['bekliyor', 'İnceleniyor'], 'reddedildi': ['', 'Reddedildi'] };
+  var DURUM = { 'onaylandı': ['olumlu', 'Onaylandı'], 'bekliyor': ['bekliyor', 'İnceleniyor'], 'reddedildi': ['', 'Reddedildi'] };
 
   function fisCiz() {
-    var kap = $('fisler');
-    kap.innerHTML = '';
-    var liste = S.receipts || [];
-    if (!liste.length) {
-      kap.appendChild(bosDurum(SIMGE_FIS, 'Henüz fiş göndermediniz',
-        'Gönderdiğiniz fişlerin durumunu bu listeden takip edersiniz.'));
-      return;
-    }
-    var ul = el('ul', 'liste grup');
-    liste.forEach(function (r) {
-      var d = DURUM_ADI[r.durum] || ['', r.durum];
-      var li = el('li');
-      var sol = el('span', 'sol');
-      sol.appendChild(el('span', 'baslik', r.tutar ? P.tl(r.tutar) : 'Tutar okunuyor'));
-      sol.appendChild(el('span', 'alt', r.t.split(' ')[0] + (r.durum === 'reddedildi' && r.sebep ? ' · ' + r.sebep : '')));
-      li.appendChild(sol);
-      var sag = el('span', 'sag');
-      sag.appendChild(el('span', 'rozet ' + d[0], d[1]));
-      li.appendChild(sag);
-      ul.appendChild(li);
-    });
-    kap.appendChild(ul);
+    var liste = D.receipts || [];
+    var satirlar = liste.map(function (r) {
+      var d = DURUM[r.durum] || ['', r.durum];
+      return '<div class="fis-satir"><span class="fis-im" aria-hidden="true"></span>'
+        + '<span class="orta"><b>' + r.t.split(' ')[0] + (r.tutar ? ' · ' + P.tl(r.tutar) : '') + '</b>'
+        + '<span>' + r.t.split(' ')[1] + (r.durum === 'reddedildi' && r.sebep ? ' · ' + r.sebep : '') + '</span></span>'
+        + '<span class="durum ' + d[0] + '">' + d[1] + '</span></div>';
+    }).join('');
+
+    $('s-fis').innerHTML =
+      '<form class="yukle" id="fis-form">'
+      + '<div class="kamera">' + S('kamera') + '</div>'
+      + '<h2>Fişini fotoğraflayıp gönder</h2>'
+      + '<p>Fişin tamamı kadrajda, düz ve okunaklı olsun. Sistem tutarı ve tarihi kontrol eder.</p>'
+      + '<div class="uyari" id="fis-durum" hidden></div>'
+      + '<label class="dugme birincil genis">' + S('kamera', 2) + '<span id="fis-ad">Fotoğraf seç</span>'
+      +   '<input type="file" accept="image/*" id="fis-girdi"></label>'
+      + '<button class="dugme ikincil genis" type="submit">Gönder</button>'
+      + '</form>'
+      + '<div class="ipuclari">'
+      +   '<div class="ipucu"><div class="n">1</div><b>Tamamı görünsün</b><span>Kenarlar kesilmesin</span></div>'
+      +   '<div class="ipucu"><div class="n">2</div><b>Net çek</b><span>Yazılar okunabilsin</span></div>'
+      +   '<div class="ipucu"><div class="n">3</div><b>Aynı gün sorun değil</b><span>Fişler birleştirilir</span></div>'
+      + '</div>'
+      + '<div class="bolum-basi"><h2>Son gönderdiklerim</h2></div>'
+      + (liste.length ? '<div class="kart fis-listesi">' + satirlar + '</div>'
+        : bosDurum('fis', 'Henüz fiş göndermedin', 'Gönderdiğin fişlerin durumunu bu listeden takip edersin.'));
+    fisBagla();
   }
 
   function hesapCiz() {
-    $('h-kod').textContent = S.code || '—';
-    $('h-tel').textContent = S.phone ? P.telMaske(S.phone) : '—';
-    $('h-tarih').textContent = S.activatedAt ? String(S.activatedAt).split(' ')[0] : '—';
-    $('izin').checked = !!S.marketing;
-    $('cihaz-zaman').textContent = 'Son kullanım ' + P.today() + ' ' + P.now();
-    $('cihaz').textContent = P.cihazAdi() + ' · bu cihaz';
+    $('s-hesap').innerHTML =
+      '<div class="profil">'
+      + '<div class="avatar" aria-hidden="true">' + D.code.replace(/[^A-Z0-9]/g, '').slice(0, 2) + '</div>'
+      + '<div><b>Peçko Fırın üyesi</b><span>' + (D.phone ? P.telMaske(D.phone) : '—') + ' · Üyelik aktif</span></div>'
+      + '</div>'
+
+      + '<div class="uye-kart" id="hesap-kod"><label>ÜYELİK KODUN</label>'
+      + '<div class="kod">' + D.code + '</div>'
+      + '<div class="satir"><span class="etiket">Kasada bu kodu söyle</span>'
+      + '<span class="etiket">Üyelik ' + String(D.activatedAt || '').split(' ')[0] + '</span></div></div>'
+
+      + '<div class="ayarlar"><label class="ayar">'
+      + '<span class="im">' + S('izin') + '</span>'
+      + '<span class="metin"><b>Kampanya mesajları</b><span>WhatsApp\'tan indirim ve yenilikler</span></span>'
+      + '<input class="anahtar" type="checkbox" id="izin"' + (D.marketing ? ' checked' : '') + '></label></div>'
+
+      + '<div class="ayarlar">'
+      + '<a class="ayar" href="../onay/?oku=1"><span class="im">' + S('kalkan') + '</span>'
+      +   '<span class="metin"><b>Aydınlatma metni</b><span>KVKK ve veri işleme bilgileri</span></span><span class="ok">›</span></a>'
+      + '<a class="ayar" href="../sohbet/"><span class="im">' + S('belge') + '</span>'
+      +   '<span class="metin"><b>Verilerim</b><span>WhatsApp\'tan VERILERIM yazarak isteyebilirsin</span></span><span class="ok">›</span></a>'
+      + '<div class="ayar"><span class="im">' + S('cihaz') + '</span>'
+      +   '<span class="metin"><b>Açık oturumlar</b><span>' + P.cihazAdi() + ' · aktif</span></span></div>'
+      + '</div>'
+
+      + '<div class="ayarlar">'
+      + '<button class="ayar" type="button" id="cikis"><span class="im">' + S('cikis') + '</span>'
+      +   '<span class="metin"><b>Çıkış yap</b><span>Bu cihazdaki oturumu kapat</span></span><span class="ok">›</span></button>'
+      + '<div class="ayar"><span class="im">' + S('cop') + '</span>'
+      +   '<span class="metin"><b class="tehlike">Üyeliği sil</b><span>WhatsApp\'tan SIL yazarak · geri alınamaz</span></span></div>'
+      + '</div>'
+
+      + '<p class="yasal">Tur ve bakiye bildirimleri üyeliğin işleyişi gereği gönderilir. '
+      + 'Kampanya mesajları tercihini istediğin zaman değiştirebilirsin.</p>';
+
+    $('izin').addEventListener('change', function () {
+      D.marketing = this.checked;
+      P.event(D, 'Kampanya izni ' + (this.checked ? 'verildi' : 'geri alındı') + ' (uygulama)', 'izin', 0);
+      P.save(D);
+    });
+    $('cikis').addEventListener('click', function () {
+      D.oturum = false; P.save(D); girisiAc();
+    });
   }
 
-  /* --- sekme geçişi --- */
+  /* --- süzgeç ve fiş --- */
+
+  function suzgeciBagla() {
+    var suzgec = document.querySelector('[data-suzgec]');
+    var akis = document.querySelector('.akis');
+    if (!suzgec || !akis) return;
+    suzgec.addEventListener('click', function (e) {
+      var dugme = e.target.closest('button[data-tur]');
+      if (!dugme) return;
+      var tur = dugme.getAttribute('data-tur');
+      var hepsi = suzgec.querySelectorAll('button');
+      for (var i = 0; i < hepsi.length; i++) hepsi[i].className = hepsi[i] === dugme ? 'acik' : '';
+      var satirlar = akis.children;
+      for (var j = 0; j < satirlar.length; j++) {
+        var t = satirlar[j].getAttribute('data-tur');
+        satirlar[j].hidden = tur !== 'hepsi' && t !== 'baslik' && t !== tur;
+      }
+      for (var k = 0; k < satirlar.length; k++) {
+        if (satirlar[k].getAttribute('data-tur') !== 'baslik') continue;
+        var bos = true;
+        for (var m = k + 1; m < satirlar.length; m++) {
+          if (satirlar[m].getAttribute('data-tur') === 'baslik') break;
+          if (!satirlar[m].hidden) { bos = false; break; }
+        }
+        satirlar[k].hidden = bos;
+      }
+    });
+  }
+
+  function fisBagla() {
+    var girdi = $('fis-girdi'), ad = $('fis-ad'), kutu = $('fis-durum');
+    var gorsel = null;
+    girdi.addEventListener('change', function () {
+      var d = girdi.files && girdi.files[0];
+      ad.textContent = d ? d.name : 'Fotoğraf seç';
+      gorsel = null;
+      if (!d) return;
+      var fr = new FileReader();
+      fr.onload = function () { gorsel = fr.result; };
+      fr.readAsDataURL(d);
+    });
+    $('fis-form').addEventListener('submit', function (e) {
+      e.preventDefault();
+      function yaz(metin, sinif) { kutu.textContent = metin; kutu.className = 'uyari ' + sinif; kutu.hidden = false; }
+      if (!girdi.files || !girdi.files[0]) return yaz('Önce fişin fotoğrafını seç.', 'hata');
+      var okuma = P.fisOku(D, 'temiz', Date.now() % 1000000);
+      var sonuc = P.fisGonder(D, okuma, gorsel || P.fisGorseli(okuma));
+      if (sonuc.durum === 'reddedildi') yaz(sonuc.sebep, 'hata');
+      else yaz('Fişin alındı: ' + P.tl(sonuc.fis.tutar) + '.', 'bilgi');
+      P.save(D);
+      fisCiz();
+    });
+  }
+
+  /* --- sekmeler --- */
+
+  function sekmeCubugu(aktif) {
+    $('sekmeler').innerHTML = SIRA.map(function (x) {
+      return '<a href="#' + x[0] + '" data-git="' + x[0] + '" class="' + (x[0] === aktif ? 'acik' : '') + '">'
+        + S(x[0] === 'kart' ? 'kart' : x[0] === 'gecmis' ? 'gecmis' : x[0] === 'fis' ? 'fis' : 'hesap')
+        + '<span>' + x[1] + '</span></a>';
+    }).join('');
+  }
 
   function git(ad) {
     if (!SEKME[ad]) ad = 'kart';
     Object.keys(SEKME).forEach(function (k) { $(SEKME[k][0]).hidden = k !== ad; });
     $('baslik').textContent = SEKME[ad][1];
-    var baglar = $('sekmeler').querySelectorAll('a');
-    for (var i = 0; i < baglar.length; i++) {
-      var etkin = baglar[i].getAttribute('data-git') === ad;
-      baglar[i].className = etkin ? 'acik' : '';
-      if (etkin) baglar[i].setAttribute('aria-current', 'page');
-      else baglar[i].removeAttribute('aria-current');
-    }
-    // Ürün, işletmenin sitesine /sadakat önekiyle bağlanıyor (BASE_URL'den
-    // türetiliyor); adres çubuğu taklidi de onu göstersin.
-    $('path').textContent = ad === 'kart' ? '/sadakat/uye' : '/sadakat/uye/' + ad;
+    $('alt').textContent = SEKME[ad][2];
+    $('path').textContent = SEKME[ad][3];
+    $('ust-eylem').innerHTML = ad === 'fis' ? '<span class="rozet olumlu">Güvenli</span>'
+      : ad === 'kart' ? '<a class="simge-dugme" href="#hesap" data-git="hesap" aria-label="Hesabım">' + S('zil') + '</a>' : '';
+    sekmeCubugu(ad);
     if (ad === 'kart') kartCiz();
     if (ad === 'gecmis') gecmisCiz();
     if (ad === 'fis') fisCiz();
@@ -227,11 +328,11 @@
     $('giris').hidden = false;
     $('sekmeler').hidden = true;
     Object.keys(SEKME).forEach(function (k) { $(SEKME[k][0]).hidden = true; });
-    $('baslik').textContent = 'Giriş yapın';
+    $('baslik').textContent = 'Giriş yap';
+    $('alt').textContent = 'Üyelik kodun, bakiyen ve alışverişlerin burada.';
     $('path').textContent = '/sadakat/uye/giris';
-    // Önceki sürümde açılmış üyelikte şifre yok; boş formu göstermek kapalı bir
-    // kapıdan başka bir şey olmaz.
-    var sifresiz = S.status === 'active' && !S.sifre;
+    $('ust-eylem').innerHTML = '';
+    var sifresiz = D.status === 'active' && !D.sifre;
     $('sifresiz').hidden = !sifresiz;
     $('giris-form').hidden = sifresiz;
   }
@@ -241,74 +342,25 @@
     var tel = P.telTemiz(this.telefon.value);
     var sifre = this.sifre.value;
     var hata = $('giris-hata');
-    // Kayıtlı numarayla kayıtsız numara aynı cevabı alır: numara sorgulanamaz.
-    if (!tel || tel !== S.phone || !sifre || P.sifreOzet(sifre) !== S.sifre) {
+    if (!tel || tel !== D.phone || !sifre || P.sifreOzet(sifre) !== D.sifre) {
       hata.textContent = 'Numara veya şifre hatalı.';
       hata.hidden = false;
       return;
     }
     hata.hidden = true;
-    S.oturum = true;
-    P.save(S);
+    D.oturum = true;
+    P.save(D);
     uygulamayiAc();
-  });
-
-  $('cikis').addEventListener('click', function () {
-    S.oturum = false;
-    P.save(S);
-    girisiAc();
-  });
-
-  $('izin').addEventListener('change', function () {
-    S.marketing = this.checked;
-    P.event(S, 'Kampanya izni ' + (this.checked ? 'verildi' : 'geri alındı') + ' (uygulama)', 'izin', 0);
-    P.save(S);
-  });
-
-  /* --- fiş provası --- */
-
-  var secilenGorsel = null;
-  $('fis-girdi').addEventListener('change', function () {
-    var d = this.files && this.files[0];
-    $('fis-ad').textContent = d ? d.name : 'Fişin fotoğrafını seçin';
-    secilenGorsel = null;
-    if (!d) return;
-    var fr = new FileReader();
-    fr.onload = function () { secilenGorsel = fr.result; };
-    fr.readAsDataURL(d);
-  });
-
-  $('fis-gonder').addEventListener('click', function () {
-    var kutu = $('fis-durum');
-    function yaz(metin, sinif) {
-      kutu.textContent = metin;
-      kutu.className = 'uyari ' + sinif;
-      kutu.hidden = false;
-    }
-    if (!$('fis-girdi').files || !$('fis-girdi').files[0]) {
-      yaz('Önce fişin fotoğrafını seçin.', 'hata');
-      return;
-    }
-    var okuma = P.fisOku(S, 'temiz', Date.now() % 1000000);
-    var sonuc = P.fisGonder(S, okuma, secilenGorsel || P.fisGorseli(okuma));
-    if (sonuc.durum === 'reddedildi') yaz(sonuc.sebep, 'hata');
-    else if (sonuc.durum === 'bekliyor') yaz(sonuc.sebep || 'Fişiniz incelemeye alındı.', 'bilgi');
-    else yaz('Fişiniz alındı: ' + P.tl(sonuc.fis.tutar) + '.', 'bilgi');
-    P.save(S);
-    $('fis-girdi').value = '';
-    $('fis-ad').textContent = 'Fişin fotoğrafını seçin';
-    secilenGorsel = null;
-    fisCiz();
   });
 
   /* --- açılış --- */
 
-  if (S.status === 'active' && S.code) {
-    if (S.oturum === false) girisiAc();
-    else if (!S.onboarded) { location.replace('../tanitim/'); return; }
-    else { S.oturum = true; P.save(S); uygulamayiAc(); }
+  $('marka-im').innerHTML = S('marka', 2);
+  if (D.status === 'active' && D.code) {
+    if (D.oturum === false) girisiAc();
+    else if (!D.onboarded) { location.replace('../tanitim/'); return; }
+    else { D.oturum = true; P.save(D); uygulamayiAc(); }
   } else {
-    // Hiç üyelik yok: kayıt akışına gönder.
     location.replace('../onay/?yeni=1');
   }
 

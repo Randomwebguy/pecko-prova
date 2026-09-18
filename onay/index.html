@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="theme-color" content="#F2EFEB">
+<meta name="theme-color" content="#F7F5EF">
 <link rel="icon" href="../simge.svg" type="image/svg+xml">
-<title>Üye olun · Peçko Fırın</title>
+<title>Üye ol · Peçko Fırın</title>
 <link rel="stylesheet" href="../uygulama.css">
 </head>
 <body>
@@ -14,9 +14,9 @@
 
 <div class="uygulama dar">
   <header class="ust">
-    <p class="marka"><b>Peçko</b> Fırın</p>
-    <h1 id="baslik">Üye olun</h1>
-    <p class="alt" id="alt">Numaranız, bir şifre ve onaylarınız yeterli.</p>
+    <div class="marka-cubugu"><p class="marka"><span class="im" id="marka-im"></span>Peçko Fırın</p></div>
+    <h1 id="baslik">Üye ol</h1>
+    <p class="alt" id="alt">Numaran, bir şifre ve onayların yeterli.</p>
   </header>
   <main>
 
@@ -29,19 +29,19 @@
       <div class="uyari hata" id="hata" role="alert" hidden></div>
 
       <form id="kayit">
-        <div class="bolum">
+        <div>
           <label class="alan">
-            <span>Telefon numaranız</span>
+            <span>TELEFON NUMARAN</span>
             <input type="tel" id="tel" inputmode="tel" autocomplete="tel" placeholder="0532 123 45 67" maxlength="20">
           </label>
           <label class="alan">
-            <span>Şifre belirleyin</span>
+            <span>ŞİFRE BELİRLE</span>
             <input type="password" id="sifre" autocomplete="new-password">
           </label>
         </div>
 
-        <section class="bolum">
-          <h2>Katılım şartları</h2>
+        <section>
+          <div class="bolum-basi"><h2>Katılım şartları</h2></div>
           <div class="yasal-sarmal"><div class="yasal-kutu"><h3>Veri sorumlusu</h3>
         <p>Peçko Fırın. Onay ve bilgilendirme sayfaları işletmenin kendi internet sitesi üzerinden sunulur;
           verileriniz bu site üzerinden toplanır.</p>
@@ -65,9 +65,9 @@
           <p class="dipnot">Metnin tamamı yukarıdaki kutuda; kaydırarak okuyabilirsiniz.</p>
         </section>
 
-        <section class="bolum">
-          <h2>Onaylarınız</h2>
-          <div class="grup">
+        <section>
+          <div class="bolum-basi"><h2>Onayların</h2></div>
+          <div class="ayarlar">
             <label class="onay"><input type="checkbox" id="okudum">
               <span><strong>Aydınlatma Metni</strong>'ni okudum ve anladım.</span></label>
             <label class="onay"><input type="checkbox" id="riza">
@@ -81,7 +81,7 @@
           </div>
         </section>
 
-        <button class="dugme birincil" type="submit">Üyeliğimi başlat</button>
+        <button class="dugme birincil genis" type="submit">Üyeliğimi başlat</button>
         <p class="dipnot merkez">Numaranıza altı haneli bir doğrulama kodu göndereceğiz.
           Sürüm 1.4 · onayınız tarih, saat ve IP ile kaydedilir.</p>
       </form>
@@ -94,15 +94,15 @@
 
       <form id="dogrula">
         <label class="alan kod-giris">
-          <span>Doğrulama kodu</span>
+          <span>DOĞRULAMA KODU</span>
           <input type="text" id="kod" inputmode="numeric" autocomplete="one-time-code"
             maxlength="6" pattern="[0-9]*" spellcheck="false">
         </label>
-        <button class="dugme birincil" type="submit">Doğrula</button>
+        <button class="dugme birincil genis" type="submit">Doğrula</button>
       </form>
-      <button class="dugme sessiz hafif" id="yenile" type="button">Kod gelmedi, yeniden gönder</button>
+      <button class="dugme hayalet genis" id="yenile" type="button">Kod gelmedi, yeniden gönder</button>
 
-      <div class="kutu duz" style="margin-top:22px">
+      <div class="kart" style="margin-top:22px">
         <p class="dipnot" style="margin:0"><strong>Bu bir provadır:</strong> gerçek SMS gitmez.
           Gönderilen kod: <strong id="prova-kod" style="font-size:16px;letter-spacing:.08em"></strong></p>
       </div>
@@ -115,6 +115,7 @@
 </div>
 
 <script src="../ortak.js"></script>
+<script src="../simgeler.js"></script>
 <script src="kayit.js"></script>
 </body>
 </html>

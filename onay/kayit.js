@@ -15,6 +15,9 @@
   if (q.get('yeni') === '1' && S.status === 'active') { P.reset(); S = P.load(); }
   if (q.get('nokta')) { S.token = q.get('nokta').toUpperCase().slice(0, 20); P.save(S); }
 
+  var im = document.getElementById('marka-im');
+  if (im) im.innerHTML = window.PECKO_SIMGE('marka', 2);
+
   var bekleyen = null;   // { tel, sifre, pazarlama, kod, deneme }
 
   function hata(kutu, mesaj) {

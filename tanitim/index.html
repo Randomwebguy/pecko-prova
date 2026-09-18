@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="theme-color" content="#F2EFEB">
+<meta name="theme-color" content="#F7F5EF">
 <link rel="icon" href="../simge.svg" type="image/svg+xml">
 <title>Peçko Fırın</title>
 <link rel="stylesheet" href="../uygulama.css">
@@ -21,20 +21,22 @@
       <h1 id="baslik">—</h1>
       <p class="tanitim-metin" id="metin"></p>
       <p class="tanitim-not" id="not" hidden></p>
-      <div class="kutu kod-kart tanitim-kod" id="kod-kart" hidden>
-        <p class="etiket">Üyelik kodunuz</p>
-        <p class="kod" id="kod">—</p>
+      <div class="uye-kart tanitim-kod" id="kod-kart" hidden>
+        <label>ÜYELİK KODUN</label>
+        <div class="kod" id="kod">—</div>
+        <div class="satir"><span class="etiket">Kasada bu kodu söyle</span></div>
       </div>
     </div>
 
     <div class="tanitim-eylem">
-      <button class="dugme birincil" id="devam" type="button">Devam</button>
-      <button class="dugme sessiz hafif" id="gec" type="button">Geç, sonra bakarım</button>
+      <button class="dugme birincil genis" id="devam" type="button">Devam</button>
+      <button class="dugme hayalet genis" id="gec" type="button">Geç, sonra bakarım</button>
     </div>
   </main>
 </div>
 
 <script src="../ortak.js"></script>
+<script src="../simgeler.js"></script>
 <script src="tanitim.js"></script>
 </body>
 </html>

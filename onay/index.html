@@ -4,41 +4,46 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="theme-color" content="#2B2422">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8E%82%3C/text%3E%3C/svg%3E">
-<title>Üyelik onayı · Peçko Fırın</title>
-<link rel="stylesheet" href="../marka.css">
-<link rel="stylesheet" href="../ortak.css">
+<meta name="theme-color" content="#0D1519" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#F2EFEB" media="(prefers-color-scheme: light)">
+<link rel="icon" href="../simge.svg" type="image/svg+xml">
+<title>Üye olun · Peçko Fırın</title>
+<link rel="stylesheet" href="../uygulama.css">
 </head>
 <body>
-<div class="app">
-  <header class="urlbar">🔒 <b>peckofirin.com.tr</b><span id="path">/sadakat/onay/…</span><a href="../sohbet/">Kapat</a></header>
-  <div class="body"><div class="pad">
-    <div id="yok" hidden>
-      <h1>Bağlantı geçerli değil</h1>
-      <p>Bu onay bağlantısı kullanılmış veya süresi dolmuş olabilir. WhatsApp sohbetine dönüp
-        <b>ONAY</b> yazarak yeni bir bağlantı isteyebilirsiniz.</p>
-      <a class="btn btn-sec" href="../sohbet/">Sohbete dön</a>
-    </div>
+<header class="urlbar">🔒 <b>peckofirin.com.tr</b><span id="path">/sadakat/uye/kayit</span><a href="../">Kapat</a></header>
 
-    <form id="form" hidden>
-      <h1 id="baslik">Katılım şartları</h1>
-      <p id="giris">Numaranızı, bir şifre belirleyip onayları verdiğinizde WhatsApp açılacak;
-        hazır mesajı göndermeniz üyeliğinizi tamamlar. Numaranız ancak o mesajla doğrulanır —
-        formdaki numara tek başına yeterli değildir.</p>
+<div class="uygulama dar">
+  <header class="ust">
+    <p class="marka"><b>Peçko</b> Fırın</p>
+    <h1 id="baslik">Üye olun</h1>
+    <p class="alt" id="alt">Numaranız, bir şifre ve onaylarınız yeterli.</p>
+  </header>
+  <main>
 
-      <div class="err" id="err" hidden>Zorunlu üç kutunun da işaretlenmesi gerekiyor.</div>
+    <!-- 1. kayıt formu -->
+    <section id="form-bolum">
+      <div class="secim">
+        <a href="../puan/#giris">Giriş</a>
+        <a class="acik" href="#">Yeni üyelik</a>
+      </div>
+      <div class="uyari hata" id="hata" role="alert" hidden></div>
 
-      <label class="txt" id="kutu-tel"><b>Telefon numaranız</b> — üyeliğiniz bu numaraya bağlanır.
-        <input type="tel" id="tel" inputmode="tel" autocomplete="tel" placeholder="0532 123 45 67"
-          maxlength="20"></label>
-      <label class="txt" id="kutu-sifre"><b>Şifre belirleyin</b> — uygulamaya bu şifreyle girersiniz;
-        girişiniz siz çıkana kadar açık kalır.
-        <input type="password" id="sifre" autocomplete="new-password"></label>
+      <form id="kayit">
+        <div class="bolum">
+          <label class="alan">
+            <span>Telefon numaranız</span>
+            <input type="tel" id="tel" inputmode="tel" autocomplete="tel" placeholder="0532 123 45 67" maxlength="20">
+          </label>
+          <label class="alan">
+            <span>Şifre belirleyin</span>
+            <input type="password" id="sifre" autocomplete="new-password">
+          </label>
+        </div>
 
-      <details class="legal">
-        <summary>Aydınlatma Metni ve Açık Rıza Beyanı (sürüm 1.3)</summary>
-        <h3>Veri sorumlusu</h3>
+        <section class="bolum">
+          <h2>Katılım şartları</h2>
+          <div class="yasal-sarmal"><div class="yasal-kutu"><h3>Veri sorumlusu</h3>
         <p>Peçko Fırın. Onay ve bilgilendirme sayfaları işletmenin kendi internet sitesi üzerinden sunulur;
           verileriniz bu site üzerinden toplanır.</p>
         <h3>İşlenen veriler</h3>
@@ -57,125 +62,60 @@
         <p>WhatsApp'a <b>VERILERIM</b> yazarak tüm verilerinizin dökümünü alabilir, <b>KAMPANYA</b>/<b>DUR</b> ile
           izin yönetebilir, <b>SIL</b> ile üyeliğinizi tamamen silebilirsiniz. KVKK m.11 kapsamındaki
           başvurularınız en geç 30 gün içinde ücretsiz sonuçlandırılır.</p>
-        <p class="muted">Bu prova sayfasında metin özetlenmiştir; yayına alınacak sürümde tam metin yer alır.</p>
-      </details>
+        <p class="muted">Bu prova sayfasında metin özetlenmiştir; yayına alınacak sürümde tam metin yer alır.</p></div></div>
+          <p class="dipnot">Metnin tamamı yukarıdaki kutuda; kaydırarak okuyabilirsiniz.</p>
+        </section>
 
-      <label class="check"><input type="checkbox" id="okudum">
-        <span><b>Aydınlatma Metni</b>'ni okudum ve anladım.</span></label>
+        <section class="bolum">
+          <h2>Onaylarınız</h2>
+          <div class="grup">
+            <label class="onay"><input type="checkbox" id="okudum">
+              <span><strong>Aydınlatma Metni</strong>'ni okudum ve anladım.</span></label>
+            <label class="onay"><input type="checkbox" id="riza">
+              <span><strong>Program üyeliği (zorunlu):</strong> telefon numaramın üyelik amacıyla
+                işlenmesine açık rıza veriyorum.</span></label>
+            <label class="onay"><input type="checkbox" id="yas">
+              <span>18 yaşından büyüğüm.</span></label>
+            <label class="onay"><input type="checkbox" id="pazarlama">
+              <span><strong>İsteğe bağlı:</strong> kampanya ve yeniliklerden WhatsApp'tan haberdar olmak
+                istiyorum. WhatsApp yalnızca bu bildirimler için kullanılır.</span></label>
+          </div>
+        </section>
 
-      <label class="check"><input type="checkbox" id="riza">
-        <span><b>Program üyeliği (zorunlu):</b> Açık Rıza Beyanı'nın "Program üyeliği" bölümünü kabul ediyor;
-          telefon numaramın üyelik amacıyla işlenmesine ve WhatsApp/Meta altyapısı üzerinden yurt dışına
-          aktarılmasına açık rıza veriyorum.</span></label>
+        <button class="dugme birincil" type="submit">Üyeliğimi başlat</button>
+        <p class="dipnot merkez">Numaranıza altı haneli bir doğrulama kodu göndereceğiz.
+          Sürüm 1.4 · onayınız tarih, saat ve IP ile kaydedilir.</p>
+      </form>
+    </section>
 
-      <label class="check"><input type="checkbox" id="yas"><span>18 yaşından büyüğüm.</span></label>
+    <!-- 2. SMS kodu -->
+    <section id="kod-bolum" hidden>
+      <div class="uyari hata" id="kod-hata" role="alert" hidden></div>
+      <div class="uyari bilgi" id="kod-bilgi" hidden></div>
 
-      <label class="txt"><b>Instagram kullanıcı adınız</b> <span class="muted">(isteğe bağlı)</span> —
-        @peckofirin hesabımızı etiketlediğiniz paylaşımlar otomatik olarak hediye bakiye kazandırsın.
-        <input type="text" id="ig" placeholder="@kullaniciadi" autocapitalize="none" spellcheck="false"
-          autocomplete="off" maxlength="40"></label>
+      <form id="dogrula">
+        <label class="alan kod-giris">
+          <span>Doğrulama kodu</span>
+          <input type="text" id="kod" inputmode="numeric" autocomplete="one-time-code"
+            maxlength="6" pattern="[0-9]*" spellcheck="false">
+        </label>
+        <button class="dugme birincil" type="submit">Doğrula</button>
+      </form>
+      <button class="dugme sessiz hafif" id="yenile" type="button">Kod gelmedi, yeniden gönder</button>
 
-      <label class="check opt"><input type="checkbox" id="pazarlama">
-        <span><b>İsteğe bağlı:</b> Kampanya, indirim ve yeniliklerden WhatsApp üzerinden haberdar olmak
-          istiyorum (ticari elektronik ileti izni). İstediğim zaman <b>DUR</b> yazarak vazgeçebilirim.</span></label>
+      <div class="kutu duz" style="margin-top:22px">
+        <p class="dipnot" style="margin:0"><strong>Bu bir provadır:</strong> gerçek SMS gitmez.
+          Gönderilen kod: <strong id="prova-kod" style="font-size:16px;letter-spacing:.08em"></strong></p>
+      </div>
 
-      <button class="btn btn-primary" id="ok" type="submit">Onaylıyorum, WhatsApp'ta devam et</button>
-      <button class="btn btn-ghost" id="no" type="button">Vazgeç</button>
-      <p class="small muted" style="margin-top:.8rem">Sürüm 1.3 · Onayınız tarih, saat ve IP adresiyle
-        birlikte kaydedilir.</p>
-    </form>
-  </div></div>
+      <p class="dipnot merkez">Kod 15 dakika geçerlidir. Numarayı yanlış yazdıysanız
+        <a href="#" id="geri">geri dönüp</a> düzeltebilirsiniz.</p>
+    </section>
+
+  </main>
 </div>
 
 <script src="../ortak.js"></script>
-<script>
-(function () {
-  var P = window.PECKO, S = P.load();
-  var form = document.getElementById('form'), yok = document.getElementById('yok');
-  var q = new URLSearchParams(location.search);
-  // "Bu telefonla başka biri üye olacak": provada cihaz tek üyelik tutuyor,
-  // yeni katılım öncekini sıfırlar. Gerçek sistemde her numaranın kendi
-  // üyeliği var, böyle bir sınır yok.
-  if (q.get('yeni') === '1' && S.status === 'active') { P.reset(); S = P.load(); }
-  if (q.get('nokta')) { S.token = q.get('nokta').toUpperCase().slice(0, 20); P.save(S); }
-
-  // İki giriş kapısı var:
-  //  · NFC/QR ile gelen: henüz üyelik yok. Onay burada alınır, numara ancak
-  //    WhatsApp mesajı gönderilince kaydedilir — kimlik böyle kanıtlanır.
-  //  · Sohbetteki onay bağlantısıyla gelen (eski akış): üyelik "pending".
-  var yeniKatilim = S.status === 'none' || S.status === 'deleted';
-  if (!yeniKatilim && S.status !== 'pending') { yok.hidden = false; return; }
-
-  form.hidden = false;
-  if (yeniKatilim) {
-    document.getElementById('path').textContent = '/sadakat/n/' + (S.token || 'KASA1').toLowerCase();
-  } else {
-    document.getElementById('baslik').textContent = 'Üyeliğinizi başlatın';
-    document.getElementById('giris').innerHTML = 'Üyelik kodunuz <b>' + S.code + '</b>. Aşağıdaki onayları ' +
-      'verdiğinizde kodunuz aktif olur ve kasada kullanmaya başlayabilirsiniz.';
-    document.getElementById('ok').textContent = 'Onaylıyorum, üyeliğimi başlat';
-    document.getElementById('no').textContent = 'Vazgeç ve numaramı sil';
-    document.getElementById('path').textContent = '/sadakat/onay/' + S.code.toLowerCase().replace(/-/g, '');
-  }
-
-  // Eski akışta (sohbetten gelen onay bağlantısı) numara zaten biliniyor:
-  // o ekranda numara/şifre sorulmaz.
-  if (!yeniKatilim) {
-    document.getElementById('kutu-tel').hidden = true;
-    document.getElementById('kutu-sifre').hidden = true;
-  }
-
-  form.addEventListener('submit', function (e) {
-    e.preventDefault();
-    var err = document.getElementById('err');
-    function dur(mesaj) {
-      err.textContent = mesaj;
-      err.hidden = false;
-      err.scrollIntoView({ block: 'center' });
-    }
-
-    var tel = null;
-    if (yeniKatilim) {
-      tel = P.telTemiz(document.getElementById('tel').value);
-      if (!tel) return dur('Telefon numarası geçersiz. Örnek: 0532 123 45 67');
-      var sifreSorun = P.sifreSorunu(document.getElementById('sifre').value);
-      if (sifreSorun) return dur(sifreSorun);
-    }
-
-    var ok = ['okudum', 'riza', 'yas'].every(function (id) { return document.getElementById(id).checked; });
-    if (!ok) return dur('Zorunlu üç kutunun da işaretlenmesi gerekiyor.');
-    err.hidden = true;
-
-    var ig = document.getElementById('ig').value.trim().replace(/^@/, '').toLowerCase();
-    var igOk = /^[a-z0-9._]{2,30}$/.test(ig) ? ig : null;
-    var pazarlama = document.getElementById('pazarlama').checked;
-
-    if (yeniKatilim) {
-      // Onay kaydedildi, numara henüz yok: sohbette mesaj gönderilince üyelik
-      // tek adımda açılacak. Gerçek sistemde bu, hazır mesaja eklenen tek
-      // kullanımlık anahtarla yapılıyor.
-      S.onOnay = { marketing: pazarlama, ig: igOk, ts: P.today() + ' ' + P.now(), surum: P.LEGAL_VERSION,
-        phone: tel, sifre: P.sifreOzet(document.getElementById('sifre').value) };
-      P.save(S);
-      location.href = '../sohbet/?nokta=' + encodeURIComponent(S.token || 'KASA1');
-      return;
-    }
-
-    S.ig = igOk;
-    S.marketing = pazarlama;
-    S.status = 'active';
-    S.activatedAt = P.today() + ' ' + P.now();
-    S.justActivated = true;
-    P.save(S);
-    location.href = '../sohbet/';
-  });
-
-  document.getElementById('no').addEventListener('click', function () {
-    if (yeniKatilim) { location.href = '../'; return; }
-    S.status = 'deleted'; S.justDeclined = true; P.save(S);
-    location.href = '../sohbet/';
-  });
-})();
-</script>
+<script src="kayit.js"></script>
 </body>
 </html>

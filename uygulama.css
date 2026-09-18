@@ -439,6 +439,78 @@ main > :last-child { margin-bottom: 0; }
 .yasal-kutu h2, .yasal-kutu h3 { color: var(--metin); font-size: 15px; font-weight: 600; margin: 16px 0 6px; }
 .yasal-kutu p { margin: 0 0 10px; }
 
+/* --- tanıtım ---------------------------------------------------------------
+   Ekran üçe bölünür: ilerleme üstte, tek fikir ortada, eylem altta sabit.
+   Ortadaki blok dikeyde ortalanır — kısa metinli adım da uzun metinli adım da
+   aynı yerden başlar, ekranlar arası geçişte zıplama olmaz. */
+
+.uygulama.tanitim { min-height: 100dvh; }
+.uygulama.tanitim main {
+  display: flex;
+  flex-direction: column;
+  padding: max(env(safe-area-inset-top), 16px) 20px calc(env(safe-area-inset-bottom) + 20px);
+}
+
+.tanitim-ilerleme { display: flex; gap: 6px; justify-content: center; padding: 6px 0 0; }
+.tanitim-ilerleme span {
+  width: 26px;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--gomme);
+  transition: background var(--gecis);
+}
+.tanitim-ilerleme span.acik { background: var(--turuncu); }
+
+/* İçerik üst-ortada durur: ekranın tepesinde kocaman bir boşluk bırakıp
+   metni ortaya itmek, kısa adımlarda ekranı boş gösteriyor. */
+.tanitim-govde {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  text-align: center;
+  padding: clamp(28px, 7vh, 64px) 0 24px;
+}
+.tanitim-cizim {
+  width: 76px;
+  height: 76px;
+  margin: 0 auto 26px;
+  border-radius: 22px;
+  background: var(--kart);
+  color: var(--turuncu);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.tanitim-cizim svg { width: 40px; height: 40px; stroke-width: 1.5; }
+.uygulama.tanitim h1 { margin: 0 0 12px; text-wrap: balance; }
+.tanitim-metin {
+  margin: 0 auto;
+  max-width: 30ch;
+  font-size: 17px;
+  line-height: 1.5;
+  color: var(--ikincil);
+  text-wrap: pretty;
+}
+.tanitim-metin strong { color: var(--metin); font-weight: 600; }
+/* Kural, fikrin altında ve ondan sessiz. */
+.tanitim-not {
+  margin: 18px auto 0;
+  max-width: 32ch;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--ikincil);
+  opacity: .8;
+}
+.tanitim-kod { margin: 28px 0 0; padding: 22px 18px; }
+.tanitim-kod .kod { font-size: clamp(28px, 8.5vw, 38px); }
+
+.tanitim-eylem { flex: 0 0 auto; padding-top: 8px; }
+.tanitim-eylem form { margin-top: 6px; }
+/* İkincil eylem, birincil eylemle yarışmaz: turuncu ve kalın değil.
+   ("geç", "yeniden gönder" gibi — yapılabilir ama beklenen yol değil.) */
+.dugme.hafif { color: var(--ikincil); font-weight: 500; font-size: 15px; min-height: 40px; }
+
 /* --- doğrulama kodu -------------------------------------------------------- */
 
 .kod-giris input {

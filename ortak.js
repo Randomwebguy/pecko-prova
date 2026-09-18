@@ -371,7 +371,7 @@
       cuzdan: null, alisverisler: null,
       marketing: false, ig: null, log: [], events: [], pending: null,
       // 2. sürüm: numara + şifreyle kalıcı oturum.
-      phone: null, sifre: null, oturum: true,
+      phone: null, sifre: null, oturum: true, onboarded: false, dogrulandi: false,
       createdAt: null, activatedAt: null,
       rewards: null, staff: null, shift: null, audit: null, claims: null,
       campaigns: null, cards: null, iys: null, ornek: null,

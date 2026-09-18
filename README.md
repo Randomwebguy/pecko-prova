@@ -8,21 +8,27 @@ Amaç, sistemin nasıl işlediğini telefonda dokunarak göstermek.
 
 | Yol | Ne gösterir |
 |---|---|
-| `/` | NFC etiketine dokunulduğunda açılan sayfa |
-| `/onay/` | Katılım şartları — numara, şifre ve onaylar |
-| `/sohbet/` | WhatsApp sohbeti (numara bu mesajla doğrulanır) |
+| `/` | NFC dokunuşu — ara ekran yok, uygulamaya ya da kayda yönlendirir |
+| `/onay/` | Kayıt: numara, şifre, onaylar → SMS kodu |
+| `/tanitim/` | Üyeliği bir kez anlatan dört ekran |
 | `/puan/` | **Üye uygulaması**: Kartım · Geçmiş · Fiş · Hesabım |
+| `/sohbet/` | WhatsApp sohbeti (yalnızca kampanya bildirimleri) |
 | `/kasa/` | Kasadaki personel ekranı |
 | `/panel/` | Yönetim paneli (10 bölüm) |
 
 ## Akış
 
-1. NFC etiketi `/` adresini açar.
-2. Katılım şartlarında numara + şifre girilir, onaylar işaretlenir.
-3. WhatsApp'ta hazır mesaj gönderilir — **numara ancak bu mesajla doğrulanır**;
-   formdaki numara tek başına yeterli değildir.
-4. Üyelik açılır ve uygulama girişi, kişi çıkana kadar açık kalır.
-5. Kayıtlı bir cihaz etikete ikinci kez dokunduğunda doğrudan uygulamaya düşer.
+1. NFC etiketi `/` adresini açar; etiket ara ekran göstermez.
+2. İlk kez gelen kayıt formuna düşer: numara + şifre + onaylar.
+3. Numaraya altı haneli bir kod gider — **numara bu kodla kanıtlanır**;
+   formdaki numara tek başına yeterli değildir. (Provada gerçek SMS gitmez,
+   kod ekranda gösterilir.)
+4. Kod doğrulanınca üyelik açılır ve tanıtım bir kez gösterilir.
+5. Giriş, kişi çıkana kadar açık kalır; kayıtlı cihaz etikete ikinci kez
+   dokunduğunda doğrudan uygulamaya düşer.
+
+WhatsApp akışın içinde değil: yalnızca kampanya bildirimlerinin kanalı ve
+rızası kayıt formunda alınıyor.
 
 ## Tasarım
 

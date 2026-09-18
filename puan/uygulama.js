@@ -305,6 +305,7 @@
 
   if (S.status === 'active' && S.code) {
     if (S.oturum === false) girisiAc();
+    else if (!S.onboarded) { location.replace('../tanitim/'); return; }
     else { S.oturum = true; P.save(S); uygulamayiAc(); }
   } else {
     // Hiç üyelik yok: kayıt akışına gönder.

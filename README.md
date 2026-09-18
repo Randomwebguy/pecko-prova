@@ -42,11 +42,29 @@ dosya yeniden kopyalanır. Böylece prova neyi gösteriyorsa müşteri onu gör�
 node cuzdan.test.mjs     # hediye bakiye kurallarının testleri
 ```
 
+## Yerelde çalıştırma
+
+Derleme yok; herhangi bir statik sunucu yeter.
+
+```bash
+python3 -m http.server 4000
+# http://localhost:4000
+```
+
+Telefondan denemek için makinenin yerel IP'sini kullanın
+(`http://192.168.x.x:4000`). Prova bütün durumu tarayıcıda tuttuğu için
+telefonda ayrı bir üyelik açılır.
+
+Cüzdan kurallarının testleri:
+
+```bash
+node cuzdan.test.mjs
+```
+
 ## Yayın
 
-GitHub Pages doğrudan `main` dalından sunar (Settings → Pages → Source:
-*Deploy from a branch* → `main` → `/ (root)`). Derleme adımı yok; `.nojekyll`
-dosyaların Jekyll'den geçmeden olduğu gibi sunulmasını sağlar.
+Netlify: depo bağlandığında `netlify.toml` yeterli — derleme komutu yok,
+kök dizin yayınlanır.
 
-`robots.txt` arama motorlarını dışarıda tutar; sayfalarda ayrıca `noindex`
-etiketi vardır.
+`robots.txt` ve `X-Robots-Tag` başlığı arama motorlarını dışarıda tutar;
+sayfalarda ayrıca `noindex` etiketi vardır.

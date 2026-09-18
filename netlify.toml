@@ -1,0 +1,26 @@
+# Prova statik: derleme adımı yok, dosyalar olduğu gibi sunuluyor.
+[build]
+  publish = "."
+  command = ""
+
+# Bu bir iç test provası; arama motorlarında görünmemeli. robots.txt zaten
+# var ama o yalnızca iyi niyetli tarayıcıları bağlar — başlık daha kesin.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+# Stil ve betikler sürüm adı taşımıyor: uzun önbellek yanlış olur, prova
+# güncellendiğinde eski dosya elde kalır.
+[[headers]]
+  for = "/*.css"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"

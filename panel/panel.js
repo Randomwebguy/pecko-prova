@@ -1,5 +1,7 @@
 /* Yönetim paneli provası. Müşteri akışıyla aynı durumu paylaşır: panelden yapılan
-   işlem müşterinin sohbetine düşer, müşterinin yaptığı panelde görünür. */
+   işlem müşterinin uygulamasının akışına düşer, müşterinin yaptığı panelde
+   görünür. İkinci sürümde gelen WhatsApp kanalı yok: panel müşteriye mesaj
+   göndermiyor, sonucu müşteri uygulamasını açtığında görüyor. */
 (function (w) {
   'use strict';
   var P = w.PECKO, PANEL = {};
@@ -212,10 +214,10 @@
     S.iys = [
       { alici: '+905321110042', tur: 'ONAY', kaynak: 'onay sayfası', tarih: gun(1),  aktarim: false },
       { alici: '+905321110018', tur: 'ONAY', kaynak: 'onay sayfası', tarih: gun(2),  aktarim: false },
-      { alici: '+905321110077', tur: 'RET',  kaynak: 'WhatsApp DUR', tarih: gun(6),  aktarim: false, gecikmis: true },
+      { alici: '+905321110077', tur: 'RET',  kaynak: 'uygulama · izin kapatıldı', tarih: gun(6),  aktarim: false, gecikmis: true },
       { alici: '+905321110033', tur: 'RET',  kaynak: 'üyelik silme', tarih: gun(11), aktarim: true },
       { alici: '+905321110091', tur: 'ONAY', kaynak: 'onay sayfası', tarih: gun(12), aktarim: true },
-      { alici: '+905321110005', tur: 'ONAY', kaynak: 'WhatsApp KAMPANYA', tarih: gun(15), aktarim: true },
+      { alici: '+905321110005', tur: 'ONAY', kaynak: 'uygulama · izin açıldı', tarih: gun(15), aktarim: true },
     ];
 
     S.audit = [
@@ -336,7 +338,7 @@
     return '<div class="app">' +
       '<header class="pbar"><span class="marka-yazi-logo">Peçko Fırın</span><b>' + P.esc(baslik) + '</b>' +
         '<span class="rol">' + (S.shift ? P.esc(S.shift) : 'yönetici') + '</span>' +
-        '<a href="' + (aktif ? '../../' : '../') + 'sohbet/">Müşteri</a></header>' +
+        '<a href="' + (aktif ? '../../' : '../') + 'puan/">Üye uygulaması</a></header>' +
       '<nav class="pnav">' + nav + '</nav>' +
       '<div class="body"><div class="pad">' + govde + '</div></div></div>';
   }
@@ -353,10 +355,12 @@
     });
   };
 
-  // Panelden müşteriye mesaj: sohbet açıldığında kutudan alınır.
-  function mesaj(S, metin, sys, btn) {
-    S.inbox = S.inbox || [];
-    S.inbox.push({ text: metin, sys: sys || null, btn: btn || null });
+  // Panelde alınan karar müşteriye mesajla bildirilmiyor: ikinci sürümde
+  // müşteri sonucu uygulamasını açtığında görüyor — bakiye cüzdandan, fişin
+  // durumu ve red sebebi fiş listesinden okunuyor. Buradaki satır personelin
+  // kaydı: üye kartındaki hareket dökümü bundan üretiliyor.
+  function kayda(S, metin, tur) {
+    P.event(S, metin, tur || 'olay', 0);
   }
   function yenile() { location.reload(); }
   function csvIndir(ad, satirlar) {
@@ -439,7 +443,6 @@
 
   function sistemDurumu(S) {
     var g = S.giden || { gonderildi: 0, basarisiz: 0, saat: 24, hatalar: [] };
-    var kendi = (S.log || []).filter(function (l) { return l.d === 'in'; }).length;
     var isler = (S.isler || []).map(function (i) {
       return '<li><span>' + i.ad + '</span><span class="right">' +
         (i.hata ? '<span class="tag red">hata</span>' : '<span class="tag ok">çalışıyor</span>') +
@@ -447,7 +450,7 @@
     }).join('');
     return '<div class="form"><h3>Sistem durumu</h3>' +
       '<p style="font-size:.86rem;margin:0 0 .6rem">Son ' + g.saat + ' saatte <b>' +
-        (g.gonderildi + kendi) + '</b> mesaj gönderildi' +
+        g.gonderildi + '</b> mesaj gönderildi' +
         (g.basarisiz ? ', <b style="color:var(--marka-kirmizi)">' + g.basarisiz + '</b> tanesi başarısız.' : ', hepsi başarılı.') + '</p>' +
       (g.hatalar && g.hatalar.length
         ? '<div class="tw" style="margin-bottom:.6rem"><table class="t"><thead><tr><th>Zaman</th><th>Tür</th><th>Hata</th></tr></thead><tbody>' +
@@ -804,7 +807,7 @@
       if (sebep === null) return;
       f.durum = 'reddedildi';
       f.sebep = sebep.trim() || 'Personel reddetti.';
-      if (gercek) mesaj(S, P.MSG.receiptRejected(f.sebep), 'Fiş: personel reddetti');
+      if (gercek) kayda(S, 'Fiş reddedildi: ' + f.sebep, 'fis');
       P.audit(S, 'fis.red', P.tl(f.tutar) + ' · ' + kod);
       P.save(S); yenile();
       return;
@@ -828,13 +831,9 @@
       // Gerçek üyede cüzdan doğrudan durumun içinde; motor onu güncelledi.
       S.cuzdan = u.cuzdan; S.alisverisler = u.alisverisler;
       P.event(S, 'Alışveriş ' + P.tl(f.tutar) + ' (fiş · personel onayı)', 'fis', 0);
-      mesaj(S, P.MSG.receiptApproved({ tutar: f.tutar, sayildi: r.sayildi,
-        gunSayildi: !!(r.alisveris && r.alisveris.sayildi), tur: r.tur }),
-        'Fiş: personel onayladı', 'puan');
       if (r.parti) {
         var g = S.cuzdan.gecmisTurlar[0];
-        mesaj(S, P.MSG.cycleComplete({ netKurus: g.netKurus, bakiyeKurus: g.bakiyeKurus,
-          sonKullanmaTs: r.parti.sonKullanmaTs }), 'Tur tamamlandı · hediye bakiye tanımlandı', 'puan');
+        kayda(S, 'Tur ' + g.no + ' tamamlandı · ' + P.tlk(g.bakiyeKurus) + ' hediye bakiye tanımlandı', 'odul');
       }
     } else {
       u.hareket = u.hareket || [];
@@ -984,12 +983,13 @@
     var k = S.campaigns.filter(function (x) { return String(x.id) === b.dataset.id; })[0];
     if (!k || k.durum !== 'taslak') return;
     if (!confirm(k.alici + ' üyeye kampanya mesajı gidecek. Onaylıyor musunuz?')) return;
-    // Gönderim anında izin yeniden kontrol edilir: DUR yazan atlanır.
+    // Gönderim anında izin yeniden kontrol edilir: uygulamadan izni kapatan
+    // üye atlanır. Kampanya WhatsApp'tan gider; ikinci sürümde WhatsApp'ın
+    // programdaki tek işi bu.
     var gercekIzinli = S.status === 'active' && S.marketing;
     k.gonderildi = k.alici; k.atlandi = 0; k.durum = 'tamam';
     if (gercekIzinli) {
-      mesaj(S, 'Peçko Fırın’nden haber var! 🎂 Bu hafta tüm kahvelerde ikinci fincan bizden. ' +
-        'Kodunuzu kasada söylemeniz yeterli.\n\nÇıkmak için DUR yazın.', 'Kampanya gönderimi: ' + k.ad);
+      kayda(S, 'Kampanya mesajı gönderildi: ' + k.ad, 'kampanya');
     } else if (S.status === 'active') {
       k.gonderildi -= 1; k.atlandi += 1;
     }
@@ -1031,9 +1031,8 @@
       var parti = P.bakiyeVer(S, kurus, 'instagram');
       c.bakiyeKurus = kurus;
       P.event(S, 'Instagram bonusu +' + P.tlk(kurus), 'instagram', 0);
-      mesaj(S, 'Instagram ' + (c.tur === 'gönderi' ? 'gönderiniz' : 'hikayeniz') + ' onaylandı, *' +
-        P.tlk(kurus) + '* hediye bakiye kazandınız! 🎉\nToplam bakiyeniz: *' + P.tlk(P.aktifBakiye(S)) +
-        '* · son kullanma ' + P.gunAdi(P.gunKodu(parti.sonKullanmaTs)), 'Instagram: personel onayladı');
+      kayda(S, 'Instagram paylaşımı onaylandı · son kullanma ' +
+        P.gunAdi(P.gunKodu(parti.sonKullanmaTs)), 'instagram');
     }
     P.audit(S, 'instagram.onay', c.kullanici + ' · +' + P.tlk(c.bakiyeKurus)); P.save(S); yenile();
   };
@@ -1041,8 +1040,7 @@
     var c = S.claims.filter(function (x) { return String(x.id) === b.dataset.id; })[0];
     if (!c || c.durum !== 'bekliyor') return;
     c.durum = 'reddedildi';
-    mesaj(S, 'Instagram paylaşımınızı maalesef onaylayamadık: hesabımızın etiketi görünmüyor. ' +
-      'Etiketin göründüğü bir ekran görüntüsüyle tekrar deneyebilirsiniz.', 'Instagram: personel reddetti');
+    kayda(S, 'Instagram paylaşımı onaylanmadı: hesabımızın etiketi görünmüyor.', 'instagram');
     P.audit(S, 'instagram.red', c.kullanici); P.save(S); yenile();
   };
 

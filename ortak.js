@@ -1,6 +1,12 @@
-/* Peçko sadakat akış provası — ortak durum ve metinler.
-   Durum tarayıcıda (localStorage) tutulur, böylece sohbet → onay → puan → kasa
-   sayfaları arasında gidip gelindiğinde akış kaldığı yerden sürer. */
+/* Peçko sadakat akış provası — ortak durum ve yardımcılar.
+   Durum tarayıcıda (localStorage) tutulur, böylece açılış → kayıt → tanıtım →
+   uygulama → kasa → panel sayfaları arasında gidip gelindiğinde akış kaldığı
+   yerden sürer.
+
+   İkinci sürümde gelen WhatsApp kanalı yok: müşteri her şeyi uygulamadan
+   görüyor, WhatsApp yalnızca kampanya dağıtımının kanalı. Sohbet ekranı ve
+   ona mesaj üreten metin motoru bu yüzden kaldırıldı; kasada ya da panelde
+   yapılan işlem artık uygulamanın akışına (P.event) düşüyor. */
 (function (w) {
   'use strict';
 
@@ -332,10 +338,6 @@
 
   P.LEGAL_VERSION = '1.4';
   P.KVKK_URL = 'https://peckofirin.com.tr/sadakat/kvkk';
-  P.PREFILL = function (token) { return 'Merhaba! Sadakat programına katılmak istiyorum. #' + token; };
-
-  var HINT = 'Alışveriş sayınızı ve hediye bakiyenizi aşağıdaki düğmeden görebilirsiniz; istediğiniz zaman BAKIYE yazarak bu sayfaya yeniden ulaşabilirsiniz.';
-  var CMDS = 'Komutlar: KODUM · BAKIYE · FIS · INSTAGRAM · VERILERIM · KAMPANYA · DUR · SIL · YARDIM';
 
   /* --- üye kodu: gerçek 31 sembollü alfabe + ağırlıklı kontrol karakteri --- */
   var ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
@@ -369,7 +371,7 @@
       token: 'KASA1', code: null, status: 'none',
       // Hediye bakiye cüzdanı ve günlük alışveriş kayıtları.
       cuzdan: null, alisverisler: null,
-      marketing: false, ig: null, log: [], events: [], pending: null,
+      marketing: false, ig: null, events: [], pending: null,
       // 2. sürüm: numara + şifreyle kalıcı oturum.
       phone: null, sifre: null, oturum: true, onboarded: false, dogrulandi: false,
       createdAt: null, activatedAt: null,
@@ -411,240 +413,6 @@
     return String(s).replace(/[&<>"]/g, function (c) {
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
     });
-  };
-  // WhatsApp'ın *kalın* işaretlemesi.
-  P.fmt = function (s) { return P.esc(s).replace(/\*([^*\n]+)\*/g, '<b>$1</b>'); };
-
-  // Müşteriye giden özet: elindeki para, ne zaman öleceği ve döngünün neresinde
-  // olduğu. Üç satırdan fazlası WhatsApp'ta okunmuyor.
-  P.cuzdanSatirlari = function (s) {
-    var bakiye = P.aktifBakiye(s), tur = P.turDurumu(s), ilk = P.ilkSonKullanma(s);
-    var out = [];
-    if (bakiye > 0) {
-      var bekleyen = P.bekleyenBakiye(s);
-      out.push('💳 Peçko hediye bakiyeniz: *' + P.tlk(bakiye) + '*' +
-        (ilk ? '\nSon kullanma: ' + P.gunAdi(P.gunKodu(ilk.sonKullanmaTs)) : ''));
-      out.push('Bakiyeniz, yapacağınız alışverişin en fazla %' + Math.round(P.CUZDAN.tavanOrani * 100) +
-        "'ini karşılar; kasada kodunuzu söylemeniz yeterli." +
-        (bekleyen ? '\n\nBugün kazandığınız ' + P.tlk(bekleyen) +
-          ' bir sonraki alışverişinizden itibaren kullanılabilir.' : ''));
-    }
-    if (tur.alisveris >= P.CUZDAN.turUzunlugu) {
-      out.push('Bu turdaki ' + P.CUZDAN.turUzunlugu + ' alışverişinizi tamamladınız.');
-    } else {
-      out.push('🛍️ Alışveriş: *' + tur.alisveris + '/' + tur.uzunluk + '*' +
-        (tur.alisveris ? ' · bu turda ' + P.tlk(tur.netKurus) + ' harcadınız' : '') +
-        '\n' + tur.kalan + ' alışveriş sonra ' +
-        (tur.alisveris ? 'şu anki harcamanızla *' + P.tlk(tur.tahminiBakiyeKurus) + '* hediye bakiye kazanırsınız.'
-                       : 'harcamanızın %' + Math.round(P.CUZDAN.oran * 100) + "'i kadar hediye bakiye kazanırsınız."));
-    }
-    return out.join('\n\n');
-  };
-
-  /* --- mesajlar: src/messages.js ile birebir --- */
-  P.MSG = {
-    welcome: function (s) {
-      return 'Merhaba! ' + P.BUSINESS + ' sadakat programına hoş geldiniz. 🎂\n\n' +
-        'Size ayrılan üyelik kodu: *' + s.code + '*\n\n' +
-        'Kodunuzun aktif olması için KVKK aydınlatma metnini okuyup onay vermeniz gerekiyor. ' +
-        'Onay bağlantısı 72 saat geçerlidir. Onay vermezseniz numaranız 72 saat içinde sistemimizden otomatik olarak silinir.';
-    },
-    consentReminder: function () {
-      return 'Üyeliğiniz henüz onaylanmadı. Onay sayfası 72 saat geçerlidir; onay verdiğinizde kodunuz aktif olur.';
-    },
-    activated: function (s) {
-      return 'Teşekkürler, üyeliğiniz aktif! ✅\n\n' + P.BUSINESS + ' üyelik kodunuz: *' + s.code + '*\n' +
-        'Kasada bu kodu söylemeniz yeterli.\n\n' + HINT + '\n\n' + CMDS;
-    },
-    code: function (s) {
-      var tur = P.turDurumu(s);
-      return 'Üyelik kodunuz: *' + s.code + '*\n' +
-        'Alışveriş: ' + tur.alisveris + '/' + tur.uzunluk + ' · hediye bakiye: ' + P.tlk(P.aktifBakiye(s)) +
-        '\n\n' + HINT + '\n\n' + CMDS;
-    },
-    points: function (s) {
-      return P.cuzdanSatirlari(s) +
-        '\n\nAyrıntılar için aşağıdaki düğmeye dokunun (bağlantı 7 gün geçerli). ' +
-        'Alışverişinizi fişle kaydetmek için FIS, Instagram paylaşımıyla ek bakiye için INSTAGRAM yazın.';
-    },
-
-    // 10. alışveriş tamamlandı: işletmenin özellikle istediği bildirim.
-    cycleComplete: function (o) {
-      return '🎉 *Tebrikler!* ' + P.CUZDAN.turUzunlugu + ' alışverişinizi tamamladınız.\n\n' +
-        'Bu turda toplam *' + P.tlk(o.netKurus) + '* harcadınız; %' + Math.round(P.CUZDAN.oran * 100) +
-        "'i kadar, yani *" + P.tlk(o.bakiyeKurus) + '* Peçko hediye bakiyesi hesabınıza tanımlandı.\n\n' +
-        'Son kullanma: *' + P.gunAdi(P.gunKodu(o.sonKullanmaTs)) + '* (' + P.CUZDAN.gecerlilikGun + ' gün)\n' +
-        'Bir sonraki alışverişinizden itibaren kullanabilirsiniz; bakiyeniz alışverişin en fazla %' +
-        Math.round(P.CUZDAN.tavanOrani * 100) + "'ini karşılar.\n\n" +
-        'Yeni turunuz başladı: 0/' + P.CUZDAN.turUzunlugu;
-    },
-
-    // Kasada alışveriş işlendi. sayildi=false iki ayrı nedenden olabilir ve
-    // müşteriye doğru nedeni söylemek gerekir: aynı gün zaten sayılmışsa
-    // "eklenmedi" demek haksızlık gibi okunur.
-    purchase: function (o) {
-      var tur = o.tur;
-      // Tur bu alışverişle dolduysa sayaç sıfırlanmıştır; "0/10 · 10 alışveriş
-      // sonra hediye bakiye" yazıp hemen ardından "tebrikler, turu doldurdunuz"
-      // demek müşteriyi şaşırtır. Dolan turu burada kapatıyoruz, ödülü sonraki
-      // mesaj anlatıyor.
-      var neden = o.turDoldu
-        ? '\n\n🛍️ Alışveriş: *' + tur.uzunluk + '/' + tur.uzunluk + '* · turunuz doldu 🎉'
-        : o.sayildi
-        ? '\n\n🛍️ Alışveriş: *' + tur.alisveris + '/' + tur.uzunluk + '*' +
-          (tur.kalan ? ' · ' + tur.kalan + ' alışveriş sonra hediye bakiye' : '')
-        : o.gunSayildi
-          ? '\n\nBugün zaten bir alışverişiniz vardı; bu tutar o güne eklendi. ' +
-            'Alışveriş sayınız: *' + tur.alisveris + '/' + tur.uzunluk + '*'
-          : '\n\nGünlük toplamınız ' + P.tlk(P.CUZDAN.enAzAlisverisKurus) +
-            ' alt sınırına ulaşmadığı için henüz alışveriş sayılmadı; ' +
-            'aynı gün içindeki alışverişleriniz toplanır.';
-      return '✅ Alışverişiniz kaydedildi: *' + P.tlk(o.brutKurus) + '*' +
-        (o.bakiyeKurus ? '\nHediye bakiyeden düşülen: *' + P.tlk(o.bakiyeKurus) + '* · ödediğiniz: ' + P.tlk(o.netKurus) : '') +
-        neden +
-        (o.turDoldu ? '' : '\n\nKalan hediye bakiyeniz: ' + P.tlk(o.bakiye));
-    },
-
-    // Bakiyenin süresi dolmadan hatırlatma.
-    expiryWarning: function (o) {
-      return '⏳ *' + P.tlk(o.tutar) + '* hediye bakiyenizin son kullanma tarihi *' +
-        P.gunAdi(P.gunKodu(o.sonKullanmaTs)) + '*.\n\n' +
-        'Kullanmak için kasada üyelik kodunuzu söylemeniz yeterli; alışverişinizin en fazla %' +
-        Math.round(P.CUZDAN.tavanOrani * 100) + "'ini karşılar.";
-    },
-
-    refund: function (o) {
-      return 'İadeniz işlendi: *' + P.tlk(o.dusulen) + '*.' +
-        (o.sayimDustu ? '\n\nİade sonrası o günün tutarı alt sınırın altına indiği için alışveriş sayınız bir azaldı.' : '') +
-        (o.bakiyeKesinti ? '\nKazanılmış bakiyeden ' + P.tlk(o.bakiyeKesinti) + ' düşüldü.' : '') +
-        '\n\n' + P.cuzdanSatirlari(o.s);
-    },
-    instagram: function (s) {
-      return '📸 *Instagram bonusu*\n\n' +
-        (s.ig ? 'Kayıtlı Instagram hesabınız: *@' + s.ig + '* (değiştirmek için INSTAGRAM @yenihesap yazın)\n\n'
-              : 'Instagram hesabınız henüz kayıtlı değil. Kaydetmek için *INSTAGRAM @kullaniciadi* yazın; böylece paylaşımlarınız otomatik eşleşir.\n\n') +
-        "Instagram'da " + P.IG.handle + ' hesabımızı etiketleyerek bir *hikaye* paylaşın (hikaye paylaşamıyorsanız gönderi de olur). ' +
-        (s.ig ? 'Hesabınız herkese açıksa paylaşımınız otomatik algılanır ve bakiyeniz eklenir. Hesabınız gizliyse veya birkaç dakika içinde mesaj gelmezse ekran görüntüsünü ' + P.IG.win + ' dakika içinde bu sohbete gönderin.'
-              : 'Ardından paylaşımın ekran görüntüsünü ' + P.IG.win + ' dakika içinde bu sohbete gönderin; gönderi bağlantısını yapıştırmanız da yeterli.') +
-        '\n\nHikaye +' + P.tl(P.IG.storyTl) + ', gönderi +' + P.tl(P.IG.postTl) +
-        ' hediye bakiye (ayda en fazla ' + P.IG.max + ' paylaşım, ' + P.CUZDAN.gecerlilikGun + ' gün geçerli).';
-    },
-    data: function (s) {
-      var t = (s.createdAt || P.today() + ' ' + P.now());
-      var lines = [
-        '📄 *Hakkınızda tuttuğumuz veriler* (KVKK m.11)', '',
-        'Üyelik kodu: ' + s.code,
-        'Telefon: +905321234567',
-        'WhatsApp adı: Test Müşteri',
-        'Instagram: ' + (s.ig ? '@' + s.ig : '—'),
-        'Durum: ' + ({ pending: 'Onay bekliyor', active: 'Aktif', deleted: 'Silindi' }[s.status] || s.status),
-        'Kayıt: ' + t + ' · Onay: ' + (s.activatedAt || '—') + ' · Son işlem: ' + P.today() + ' ' + P.now(),
-        'Kayıt noktası: ' + s.token,
-        'Alışveriş: ' + P.turDurumu(s).alisveris + '/' + P.CUZDAN.turUzunlugu +
-          ' (tur ' + P.turDurumu(s).no + ') · tamamlanan tur: ' + (s.cuzdan ? s.cuzdan.gecmisTurlar.length : 0),
-        'Hediye bakiye: ' + P.tlk(P.aktifBakiye(s)) +
-          (P.ilkSonKullanma(s) ? ' · son kullanma ' + P.gunAdi(P.gunKodu(P.ilkSonKullanma(s).sonKullanmaTs)) : ''),
-        'Kayıtlı alışveriş günü: ' + (s.alisverisler || []).length + ' · yüklenen fiş: ' + (s.receipts || []).length,
-        'Kampanya izni: ' + (s.marketing ? 'Var' : 'Yok'), '',
-        '*Rıza kayıtları*:'
-      ];
-      if (s.activatedAt) lines.push('• ' + s.activatedAt + ' – KVKK / üyelik: verildi (sürüm ' + P.LEGAL_VERSION + ', web)');
-      if (s.marketing) lines.push('• ' + (s.activatedAt || t) + ' – Kampanya izni: verildi (sürüm ' + P.LEGAL_VERSION + ', web)');
-      if (!s.activatedAt && !s.marketing) lines.push('• Henüz rıza kaydı yok.');
-      lines.push('', '*Hesap hareketleri*:');
-      lines = lines.concat(s.events.length ? s.events : ['• Henüz hareket yok.']);
-      lines.push('', 'Aydınlatma metni: ' + P.KVKK_URL,
-        'Silmek için SIL, kampanya izni için KAMPANYA veya DUR yazabilirsiniz.');
-      return lines.join('\n');
-    },
-    marketingPrompt: function () {
-      return P.BUSINESS + ' kampanya, indirim ve yeniliklerinden WhatsApp üzerinden haberdar olmak için izin vermek üzeresiniz (ticari elektronik ileti). ' +
-        "İzniniz mevzuat gereği İleti Yönetim Sistemi'ne (İYS) kaydedilir; dilediğiniz zaman DUR yazarak vazgeçebilirsiniz.\n\n" +
-        'Aydınlatma metni: ' + P.KVKK_URL + '\n\nOnaylamak için *KAMPANYA EVET* yazın.';
-    },
-    marketingGranted: function () {
-      return 'Teşekkürler, kampanya mesajı izniniz kaydedildi. 🎉 Dilediğiniz zaman DUR yazarak vazgeçebilirsiniz.';
-    },
-    marketingAlreadyOn: function () { return 'Kampanya mesajı izniniz zaten açık. Kapatmak için DUR yazabilirsiniz.'; },
-    optedOut: function () {
-      return 'Kampanya ve tanıtım mesajları için izniniz geri alındı; artık bu tür mesaj almayacaksınız. ' +
-        'Üyeliğiniz ve hediye bakiyeniz korunuyor. Yeniden izin vermek isterseniz KAMPANYA yazabilirsiniz.';
-    },
-    deletePrompt: function () {
-      return 'Üyeliğinizi ve tüm kişisel verilerinizi kalıcı olarak silmek üzeresiniz; hediye bakiyeniz ve alışveriş sayınız da silinir, bu işlem geri alınamaz.\n\n' +
-        'Onaylamak için *SIL EVET* yazın. Vazgeçmek için hiçbir şey yapmanız gerekmez.';
-    },
-    deleted: function () {
-      return 'Üyeliğiniz ve kişisel verileriniz ' + P.BUSINESS + ' sadakat sisteminden silindi. ' +
-        'Dilediğiniz zaman kasadaki QR kodu okutarak yeniden katılabilirsiniz. Hoşça kalın! 👋';
-    },
-    pendingDeleted: function () {
-      return 'Onaylanmamış başvurunuz ve numaranız ' + P.BUSINESS + ' sisteminden silindi. Dilerseniz QR kodu okutarak yeniden başvurabilirsiniz.';
-    },
-    notMember: function () {
-      return 'Bu numaraya kayıtlı bir ' + P.BUSINESS + ' üyeliği bulunamadı. Katılmak için kasadaki QR kodu okutabilir veya NFC kartı telefonunuza dokundurabilirsiniz.';
-    },
-    instagramLinked: function (u) {
-      return 'Instagram hesabınız *@' + u + '* olarak kaydedildi. ✅ Artık ' + P.IG.handle +
-        ' hesabımızı etiketlediğiniz hikaye ve gönderiler otomatik olarak hediye bakiye kazandırır.';
-    },
-    receiptInfo: function (s) {
-      var c = P.RECEIPT, tur = P.turDurumu(s);
-      return '🧾 *Fişinizle alışverişinizi kaydedin*\n\n' +
-        'Mağazamızdan aldığınız fişin fotoğrafını ' + c.pencere + ' dakika içinde bu sohbete gönderin; ' +
-        'tutarı okunup alışveriş hesabınıza işlenir.\n\n' +
-        'En az ' + P.tl(c.enAz) + ' tutarındaki fişler geçerlidir; fiş en fazla ' + c.enFazlaSaat +
-        ' saatlik olmalı ve günde en çok ' + c.gunluk + ' fiş yükleyebilirsiniz. ' +
-        'Aynı gün içindeki fişleriniz *tek alışveriş* sayılır ve tutarları toplanır.\n\n' +
-        '🛍️ Alışveriş: *' + tur.alisveris + '/' + tur.uzunluk + '*' +
-        (tur.kalan ? ' · ' + tur.kalan + ' alışveriş sonra hediye bakiye' : '') +
-        '\n\nFişin tamamı görünsün, düz ve net çekin. Aynı fiş yalnızca bir kez işlenir.';
-    },
-    receiptReceived: function () {
-      return 'Fişinizi aldık, okunuyor… 🧾 Sonucu birazdan buradan bildireceğiz.';
-    },
-    receiptApproved: function (o) {
-      var tur = o.tur;
-      return 'Fişiniz onaylandı! 🧾 *' + P.tl(o.tutar) + '* alışveriş hesabınıza işlendi.' +
-        (o.turDoldu
-          ? '\n\n🛍️ Alışveriş: *' + tur.uzunluk + '/' + tur.uzunluk + '* · turunuz doldu 🎉'
-          : o.sayildi
-          ? '\n\n🛍️ Alışveriş: *' + tur.alisveris + '/' + tur.uzunluk + '*' +
-            (tur.kalan ? ' · ' + tur.kalan + ' alışveriş sonra hediye bakiye' : '')
-          : o.gunSayildi
-            ? '\n\nBugün zaten bir alışverişiniz vardı; bu fişin tutarı o güne eklendi, alışveriş sayınız değişmedi.'
-            : '\n\nGünlük toplamınız ' + P.tlk(P.CUZDAN.enAzAlisverisKurus) +
-              ' alt sınırına ulaşmadığı için henüz alışveriş sayılmadı.');
-    },
-    receiptPending: function (sebep) {
-      return 'Fişinizi aldık. ' + sebep + ' Ekibimiz kontrol ettikten sonra puanınız eklenecek ve size haber vereceğiz. 🧾';
-    },
-    receiptRejected: function (sebep) {
-      return 'Fişinizi maalesef puanlayamadık: ' + sebep;
-    },
-    claimReceived: function () {
-      return 'Paylaşımınızı aldık, teşekkürler! 📸 Ekibimiz kontrol ettikten sonra puanınız eklenecek ve size haber vereceğiz.';
-    },
-    help: function () {
-      return P.BUSINESS + ' sadakat asistanı 🤖\n\n' +
-        'KODUM – üyelik kodunuz ve alışveriş sayınız\n' +
-        'BAKIYE – hediye bakiyeniz, son kullanma tarihi ve alışveriş sayınız\n' +
-        'FIS – fişinizin fotoğrafını gönderip alışverişinizi kaydedin\n' +
-        'INSTAGRAM – paylaşım yaparak ek hediye bakiye kazanın\n' +
-        'VERILERIM – hakkınızda tuttuğumuz veriler (KVKK)\n' +
-        'KAMPANYA – kampanya mesajlarına izin verin\n' +
-        'DUR – kampanya mesajlarını durdurun\n' +
-        'SIL – üyeliğinizi ve verilerinizi silin\n' +
-        'ONAY – onay bağlantısını yeniden alın\n\n' +
-        'Katılmak için kasadaki QR kodu okutmanız yeterli.';
-    }
-  };
-
-  /* --- sohbet günlüğüne yazma (sayfalar arası korunur) --- */
-  P.push = function (s, dir, text, btn) {
-    s.log.push({ d: dir, x: text, b: btn || null, t: P.now() });
-    if (s.log.length > 120) s.log.splice(0, s.log.length - 120);
-    return s;
   };
   // Puan hareketi. tur/puan verilirse yapılandırılmış deftere de yazılır: üye
   // kartındaki "hangi puan nereden geldi" dökümü metinden değil bundan üretilir.

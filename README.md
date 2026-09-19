@@ -12,7 +12,6 @@ Amaç, sistemin nasıl işlediğini telefonda dokunarak göstermek.
 | `/onay/` | Kayıt: numara, şifre, onaylar → SMS kodu |
 | `/tanitim/` | Üyeliği bir kez anlatan dört ekran |
 | `/puan/` | **Üye uygulaması**: Kartım · Geçmiş · Fiş · Hesabım |
-| `/sohbet/` | WhatsApp sohbeti (yalnızca kampanya bildirimleri) |
 | `/kasa/` | Kasadaki personel ekranı |
 | `/panel/` | Yönetim paneli (10 bölüm) |
 
@@ -27,8 +26,11 @@ Amaç, sistemin nasıl işlediğini telefonda dokunarak göstermek.
 5. Giriş, kişi çıkana kadar açık kalır; kayıtlı cihaz etikete ikinci kez
    dokunduğunda doğrudan uygulamaya düşer.
 
-WhatsApp akışın içinde değil: yalnızca kampanya bildirimlerinin kanalı ve
-rızası kayıt formunda alınıyor.
+WhatsApp akışın içinde değil: programdaki tek işi kampanya dağıtımı, rızası da
+kayıt formunda alınıyor. Gelen WhatsApp kanalı yok — sohbet ekranı ve ona mesaj
+üreten metin motoru ikinci sürümde kaldırıldı. Kasada ya da panelde yapılan
+işlemi müşteri, uygulamasını açtığında görüyor: bakiye cüzdandan, fişin durumu
+ve varsa red sebebi fiş listesinden okunuyor.
 
 ## Tasarım
 

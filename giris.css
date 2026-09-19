@@ -1,0 +1,43 @@
+/* Açılış ekranı. Tek iş: NFC dokunuşundan sonra doğru sayfaya geçerken
+   gözün takılacağı bir kare olmak. Betik çalışmazsa aynı kart elle devam
+   edilebilir bir sayfaya dönüşüyor, o yüzden gerçek bir düğmesi var. */
+body.acilis {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: var(--ink);
+}
+
+.acilis-kart {
+  width: 100%;
+  max-width: 330px;
+  background: var(--kart);
+  border-radius: var(--r-hero);
+  box-shadow: 0 24px 60px -24px rgba(0, 0, 0, .55);
+  padding: 26px 22px 20px;
+  text-align: center;
+}
+
+.acilis-im { display: block; margin: 0 auto 14px; width: 46px; height: 46px; }
+.acilis-im img { display: block; width: 46px; height: 46px; border-radius: 12px; }
+
+.acilis-kart h1 { margin: 0 0 4px; font-size: 19px; font-weight: 800; letter-spacing: -.3px; }
+.acilis-kart p { margin: 0 0 16px; font-size: 13px; color: var(--ikincil); }
+
+.acilis-donuyor {
+  display: block;
+  width: 24px; height: 24px;
+  margin: 0 auto 18px;
+  border-radius: 50%;
+  border: 3px solid var(--cizgi);
+  border-top-color: var(--turuncu);
+  animation: acilis-don .9s linear infinite;
+}
+@keyframes acilis-don { to { transform: rotate(360deg); } }
+/* Hareketi azaltılmış cihazda dönmek yerine nabız gibi soluyor. */
+@media (prefers-reduced-motion: reduce) {
+  .acilis-donuyor { animation: none; border-top-color: var(--cizgi); opacity: .6; }
+}
+
+.acilis-kucuk { margin: 20px 0 0; font-size: 11px; line-height: 1.45; color: var(--ikincil); }

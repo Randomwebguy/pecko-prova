@@ -4,71 +4,40 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="theme-color" content="#1F6E5C">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8E%82%3C/text%3E%3C/svg%3E">
-<title>Peçko Sadakat · yönlendiriliyor</title>
-<link rel="stylesheet" href="marka.css">
-<link rel="stylesheet" href="ortak.css">
-<style>
-body{background:var(--marka-lacivert);display:grid;place-items:center;padding:20px}
-.hand{width:100%;max-width:340px;background:var(--card);border-radius:16px;overflow:hidden;
-  text-align:center;box-shadow:0 20px 50px -20px rgba(0,0,0,.7)}
-.hand .icerik{padding:1.25rem 1.3rem 1.4rem}
-.hand h1{font-size:1.05rem;margin:0 0 .3rem}
-.hand p{font-size:.86rem;color:var(--muted);margin:0 0 1rem}
-.hand .quote{background:var(--wa-out);border-radius:10px;padding:.6rem .7rem;font-size:.85rem;
-  text-align:left;color:var(--wa-ink);margin-bottom:1rem}
-.spin{width:26px;height:26px;border-radius:50%;border:3px solid var(--line);border-top-color:var(--brand);
-  margin:0 auto .8rem;animation:sp .9s linear infinite}
-@keyframes sp{to{transform:rotate(360deg)}}
-.hand .tiny{font-size:.72rem;color:var(--muted);margin:.9rem 0 0}
-.kod-kutu{margin:.8rem 0;padding:.7rem;border:1px solid var(--line);border-radius:12px;background:#fff}
-.kod-kutu b{display:block;font-size:1.6rem;letter-spacing:.12em;color:var(--marka-vurgu-koyu,#C8410F)}
-#ozet{white-space:pre-line}
-.hand .btn{display:block;margin:.5rem 0}
-</style>
+<meta name="theme-color" content="#11353C">
+<link rel="icon" href="simge.svg" type="image/svg+xml">
+<title>Peçko Fırın · Sadakat</title>
+<link rel="stylesheet" href="uygulama.css">
+<link rel="stylesheet" href="giris.css">
 </head>
-<body>
-<main class="hand">
-  <div class="logo-plaka"><span class="marka-yazi-logo buyuk">Peçko Fırın</span></div>
-  <div class="icerik" id="yeni">
-    <h1>Sadakat programı</h1>
-    <p>Katılım şartları açılıyor…</p>
-    <div class="spin" aria-hidden="true"></div>
-    <div class="quote" id="quote">Önce katılım şartlarını onaylayacaksınız; ardından WhatsApp açılacak.</div>
-    <a class="btn btn-primary" id="go" href="onay/">Katılım şartlarını aç</a>
-    <p class="tiny">Gerçek kurulumda NFC etiketi bu sayfayı açar. Onaylar verildikten sonra WhatsApp
-      hazır mesajla açılır. Bu bir akış provasıdır, gerçek mesaj gönderilmez.</p>
-  </div>
-
-  <!-- Bu cihaz daha önce üye olmuş: onay metni tekrar gösterilmez. Kasada
-       lazım olan şey koddur, ekrana o gelir. -->
-  <div class="icerik" id="uye" hidden>
-    <h1>Tekrar hoş geldiniz</h1>
-    <p>Kasada aşağıdaki kodu söylemeniz yeterli.</p>
-    <div class="kod-kutu"><span class="tiny">Üyelik kodunuz</span><b id="kod">—</b></div>
-    <p id="ozet" class="quote"></p>
-    <a class="btn btn-primary" href="puan/">Uygulamayı aç</a>
-    <a class="btn btn-sec" href="sohbet/">WhatsApp'tan yaz</a>
-    <p class="tiny">Bu telefonla başka biri üye olacaksa <a href="onay/?yeni=1">yeni üyelik başlatın</a>.</p>
-  </div>
+<body class="acilis">
+<!-- NFC etiketi bu adresi açar. Betik hemen doğru ekrana gönderir; aşağıdaki
+     kart yalnızca betik çalışmazsa görünür, o yüzden elle bir düğmesi var. -->
+<main class="acilis-kart">
+  <span class="acilis-im" aria-hidden="true"><img src="simge.svg" alt="" width="46" height="46"></span>
+  <h1>Peçko Fırın</h1>
+  <p>Sadakat programı açılıyor…</p>
+  <span class="acilis-donuyor" aria-hidden="true"></span>
+  <a class="dugme birincil genis" id="git" href="onay/">Devam et</a>
+  <p class="acilis-kucuk">Gerçek kurulumda kasadaki NFC etiketi bu sayfayı açar.
+    Bu bir akış provasıdır; gerçek kayıt oluşmaz, SMS gönderilmez.</p>
 </main>
 <script src="ortak.js"></script>
 <script>
 (function () {
-  // v2: etiket ara ekran açmaz, uygulamayı açar. İlk kez gelen kayıt akışına,
-  // oturumu açık olan doğrudan kartına düşer.
+  // v2: etiket ara ekran açmaz. İlk kez gelen kayıt akışına, oturumu açık
+  // olan doğrudan kartına düşer; tanıtımı bitirmemiş olan tanıtıma.
   var P = window.PECKO;
   var q = new URLSearchParams(location.search);
   var token = (q.get('nokta') || 'KASA1').toUpperCase().replace(/[^A-Z0-9-]/g, '').slice(0, 20) || 'KASA1';
   var s = P.load();
   s.token = token;
   P.save(s);
-  if (s.status === 'active' && s.code && s.oturum !== false) {
-    location.replace(s.onboarded ? 'puan/' : 'tanitim/');
-    return;
-  }
-  location.replace('onay/?nokta=' + encodeURIComponent(token));
+  var hedef = (s.status === 'active' && s.code && s.oturum !== false)
+    ? (s.onboarded ? 'puan/' : 'tanitim/')
+    : 'onay/?nokta=' + encodeURIComponent(token);
+  document.getElementById('git').setAttribute('href', hedef);
+  location.replace(hedef);
 })();
 </script>
 </body>

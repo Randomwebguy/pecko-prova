@@ -1,35 +1,48 @@
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap");
 /* ============================================================================
-   MARKA KATMANI — peckofirin.com.tr kurumsal kimliği.
-   Renkler sitenin üst şeridi, arama düğmesi ve logosundan alındı.
+   MARKA KATMANI — onaylanan tasarım paketi (pecko-loyalty-ui-package).
+   Renkler, yarıçap ve yazı tipi üye uygulamasıyla (uygulama.css) birebir aynı;
+   kasa ve panel ekranları da aynı üründen çıkmış görünsün diye buradan
+   besleniyor. Daha önce buradaki palet doğrudan web sitesinden alınmıştı ve
+   pakete yakın ama eşit değildi: iki turuncu, iki lacivert vardı.
    WhatsApp sohbet ekranı bilinçli olarak dışarıda: orası WhatsApp gibi
    görünmeli; oradan markaya bağlanan tek şey profil görselindeki logo.
    ========================================================================= */
 :root{
   /* --- sitenin kendi renkleri --- */
-  --marka-lacivert:#0C2A35;     /* üst şerit */
-  --marka-lacivert-2:#15394A;   /* menü şeridi */
-  --marka-turuncu:#F0592B;      /* arama düğmesi, birincil eylem */
-  --marka-kirmizi:#E32227;      /* logodaki "fırın", uyarı vurgusu */
+  --marka-lacivert:#11353C;     /* paketin --ink değeri */
+  --marka-lacivert-2:#274950;   /* paketin --ink-2 değeri */
+  --marka-turuncu:#FF5B2D;      /* paketin --turuncu değeri: birincil eylem */
+  --marka-kirmizi:#B54B38;      /* yıkıcı eylem, hata */
 
   /* --- uygulamaya dağıtılan roller --- */
-  --marka-zemin:#F4F6F7;        /* sayfa zemini */
+  --marka-zemin:#F7F5EF;        /* paketin --krem değeri */
   --marka-kart:#FFFFFF;         /* kart / form zemini */
-  --marka-gomme:#EDF1F3;        /* ikincil zemin, şerit */
-  --marka-metin:#16252E;        /* ana metin */
-  --marka-ikincil:#6A7A84;      /* ikincil metin */
-  --marka-cizgi:#DFE6E9;        /* kenarlık */
+  --marka-gomme:#F8F9F7;        /* paketin --gomme değeri */
+  --marka-metin:#11353C;        /* ana metin */
+  --marka-ikincil:#77898D;      /* ikincil metin */
+  --marka-cizgi:#E8E9E5;        /* kenarlık */
   --marka-vurgu:var(--marka-turuncu);
-  --marka-vurgu-koyu:#C8410F;   /* bağlantı, basılı hâl */
+  --marka-vurgu-koyu:#D8431B;   /* bağlantı, basılı hâl */
   --marka-koyu:var(--marka-lacivert);
   --marka-koyu-uzeri:#FFFFFF;
+  /* Lacivert üstündeki ikincil metin. Eskiden sıcak krem (#FBF6EE) idi;
+     paletin laciverti soğuk olduğu için krem orada sararmış görünüyordu. */
+  --marka-koyu-uzeri-2:#C9D8D9;
+
+  /* Durum renkleri — paketten. Vurgu değil, ayrı bir ailedir. */
+  --marka-uyari-zemin:#FFF1EA;
+  --marka-uyari-ink:#8E5A48;
+  --marka-hata-zemin:#FCEDE9;
+  --marka-olumlu-zemin:#E8F3EF;
+  --marka-olumlu-ink:#2A6B59;
 
   /* --- yazı --- */
-  --marka-yazi:Poppins,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --marka-yazi:ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
   --marka-baslik:var(--marka-yazi);
 
-  /* --- biçim: sitedeki kutular yumuşak ama keskin köşeli --- */
-  --marka-yuvarlak:9px;
+  /* --- biçim: paketin orta yarıçapı. Kasa ve panel yoğun yüzeyler, bu yüzden
+     uygulamanın 20px'lik kart yarıçapı değil, 13px kullanılıyor. --- */
+  --marka-yuvarlak:13px;
 
   /* --- logo: tek satır, üç yerde birden değişir ---
      Adres MUTLAK olmalı (https://… ya da /sadakat/logo.png gibi kökten).
@@ -53,6 +66,13 @@
   --cocoa:var(--marka-koyu);
   --radius:var(--marka-yuvarlak);
   --danger:var(--marka-kirmizi);
+  --koyu-uzeri:var(--marka-koyu-uzeri);
+  --koyu-uzeri-2:var(--marka-koyu-uzeri-2);
+  --uyari-zemin:var(--marka-uyari-zemin);
+  --uyari-ink:var(--marka-uyari-ink);
+  --hata-zemin:var(--marka-hata-zemin);
+  --olumlu-zemin:var(--marka-olumlu-zemin);
+  --olumlu-ink:var(--marka-olumlu-ink);
 }
 body{font-family:var(--marka-yazi)}
 h1,h2,h3,.pbar b{font-family:var(--marka-baslik)}

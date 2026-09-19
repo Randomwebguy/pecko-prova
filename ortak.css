@@ -4,7 +4,8 @@
    paleti ve duruma bağlı renkler durur. Marka belirteçleri burada yeniden
    tanımlanırsa marka.css'i ezer — bilerek tanımlanmıyor. */
 :root{
-  --ok:#2E7D32; --ok-bg:#E7F1E4;
+  /* Olumlu durum paketin nane tonundan; eski yeşil markanın dışındaydı. */
+  --ok:var(--marka-olumlu-ink); --ok-bg:var(--marka-olumlu-zemin);
   --wa-head:#1F6E5C; --wa-bed:#EBE2D8; --wa-in:#FFFFFF; --wa-out:#DCF8C6;
   --wa-ink:#1E2A25; --wa-meta:#7C8B84; --wa-link:#1B7EC2;
 }
@@ -40,10 +41,10 @@ a{color:var(--brand-ink)}
   font-size:.64rem;letter-spacing:.06em;text-transform:uppercase;font-weight:600;flex:0 0 auto}
 
 /* ---- tarayıcı adres çubuğu taklidi (onay / puan sayfaları) ---- */
-.urlbar{background:var(--marka-koyu);color:#E6EDF1;display:flex;align-items:center;gap:.45rem;flex:0 0 auto;
+.urlbar{background:var(--marka-koyu);color:var(--koyu-uzeri-2);display:flex;align-items:center;gap:.45rem;flex:0 0 auto;
   padding:calc(env(safe-area-inset-top,0px) + .5rem) .8rem .55rem;font-size:.73rem}
 .urlbar b{font-weight:600;color:#fff}
-.urlbar a{margin-left:auto;color:#E6EDF1;text-decoration:none;background:rgba(255,255,255,.16);
+.urlbar a{margin-left:auto;color:var(--koyu-uzeri);text-decoration:none;background:rgba(255,255,255,.16);
   border-radius:8px;padding:.45rem .75rem;font-size:.78rem;min-height:44px;display:flex;align-items:center}
 
 /* ---- kaydırılan gövde ---- */
@@ -142,14 +143,14 @@ p{margin:0 0 .7rem;font-size:.9rem}
 label.txt{display:block;font-size:.83rem;margin-bottom:.7rem}
 label.txt input{width:100%;margin-top:.3rem;padding:.7rem .8rem;border:1px solid var(--line);
   border-radius:10px;font:inherit;font-size:16px;min-height:48px;background:var(--card);color:var(--ink)}
-.btn{display:flex;align-items:center;justify-content:center;width:100%;border:0;border-radius:11px;
+.btn{display:flex;align-items:center;justify-content:center;width:100%;border:0;border-radius:var(--radius);
   padding:.8rem .9rem;min-height:50px;text-align:center;font:600 .95rem/1.25 inherit;cursor:pointer;
   text-decoration:none}
 .btn-primary{background:var(--brand);color:#fff}
 .btn-sec{background:var(--sunk);color:var(--ink);border:1px solid var(--line)}
 .btn-ghost{background:transparent;color:var(--muted);text-decoration:underline;margin-top:.5rem}
 .btn[disabled]{opacity:.5;cursor:not-allowed}
-.err{background:#FBE9E7;color:#B3261E;border-radius:9px;padding:.55rem .7rem;font-size:.82rem;
+.err{background:var(--hata-zemin);color:var(--danger);border-radius:9px;padding:.55rem .7rem;font-size:.82rem;
   margin-bottom:.6rem}
 .ok{background:var(--ok-bg);color:var(--ok);border-radius:9px;padding:.55rem .7rem;font-size:.82rem;
   margin-bottom:.6rem}
@@ -166,7 +167,7 @@ details.legal h3{font-size:.85rem;margin:.8rem 0 .25rem;color:var(--cocoa)}
 details.legal p,details.legal li{font-size:.8rem;line-height:1.5;color:var(--muted)}
 
 /* ---- puan sayfası ---- */
-.codebox{background:var(--cocoa);color:#FBF6EE;border-radius:var(--radius);padding:.9rem;text-align:center;
+.codebox{background:var(--cocoa);color:var(--koyu-uzeri);border-radius:var(--radius);padding:.9rem;text-align:center;
   margin-bottom:.9rem}
 .codebox .c{font:700 1.5rem/1.1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.06em}
 .codebox small{opacity:.8;font-size:.75rem}
@@ -183,9 +184,9 @@ details.legal p,details.legal li{font-size:.8rem;line-height:1.5;color:var(--mut
 /* ---- durum belirteçleri (puan sayfası ve panel ortak) ---- */
 .tag{display:inline-block;border-radius:999px;padding:.15em .55em;font-size:.7rem;font-weight:600}
 .tag.ok{background:var(--ok-bg);color:var(--ok)}
-.tag.bek{background:#FAF0D8;color:#8A5D0B}
-.tag.sil{background:#F3EDE9;color:var(--muted)}
-.tag.red{background:#FBE9E7;color:#B3261E}
+.tag.bek{background:var(--uyari-zemin);color:var(--uyari-ink)}
+.tag.sil{background:var(--sunk);color:var(--muted)}
+.tag.red{background:var(--hata-zemin);color:var(--danger)}
 
 /* ---- harcama seviyesi ---- */
 .seviye{border:1px solid var(--line);border-radius:var(--radius);padding:.75rem .8rem;background:var(--card);
